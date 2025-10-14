@@ -1,12 +1,28 @@
-// Migrations are an early feature. Currently, they're nothing more than this
-// single deploy script that's invoked from the CLI, injecting a provider
-// configured from the workspace's Anchor.toml.
+import * as anchor from "@project-serum/anchor";
+import { Keypair } from "@solana/web3.js";
 
-import * as anchor from "@coral-xyz/anchor";
-
-module.exports = async function (provider: anchor.AnchorProvider) {
-  // Configure client to use the provider.
+const main = async () => {
+  const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  // Add your deploy script here.
+  const program = anchor.workspace.LmsContract;
+
+  // Generate a new cohort account
+  const cohort = Keypair.generate();
+
+  await program.methods
+    .createCohort("Solana Devs", "Learn Solana smart contracts", 1700000000, 1700600000)
+    .accounts({
+      cohort: cohort.publicKey,
+      signer: provider.wallet.publicKey,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .signers([cohort])
+    .rpc();
+
+  console.log("✅ Cohort deployed:", cohort.publicKey.toBase58());
 };
+
+main().catch((err) => {
+  console.error("❌ Deployment failed:", err);
+});

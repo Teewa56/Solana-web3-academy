@@ -4,13 +4,25 @@ import { Web3Academy } from "../target/types/web3_academy";
 
 describe("web3_academy", () => {
   // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.AnchorProvider.env());
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
 
-  const program = anchor.workspace.web3Academy as Program<Web3Academy>;
+  const program = anchor.workspace.Web3Academy as Program<Web3Academy>;
 
   it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods.initialize().rpc();
-    console.log("Your transaction signature", tx);
+    const cohort = anchor.web3.Keypair.generate();
+
+    await program.methods
+      .createCohort("Solana Devs", "Learn Solana smart contracts", 1700000000, 1700600000)
+      .accounts({
+        cohort: cohort.publicKey,
+        signer: provider.wallet.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([cohort])
+      .rpc();
+
+    const cohortAccount = await program.account.cohortAccount.fetch(cohort.publicKey);
+    console.log("Cohort created:", cohortAccount);
   });
 });
