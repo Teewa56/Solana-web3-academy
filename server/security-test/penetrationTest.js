@@ -1,21 +1,21 @@
 const axios = require('axios');
 
-const testSQLInjection = async () => {
-    const payload = "' OR '1'='1";
+const testNoSQLInjection = async () => {
+    const payload = { "$ne": null };
     try {
         const response = await axios.post('http://localhost:3000/api/v1/login', {
             username: payload,
             password: 'password'
         });
         if (response.data.success) {
-            console.log('SQL Injection Test Failed: Vulnerability Detected');
+            console.log('NoSQL Injection Test Failed: Vulnerability Detected');
         }
         else {
-            console.log('SQL Injection Test Passed: No Vulnerability Detected');
+            console.log('NoSQL Injection Test Passed: No Vulnerability Detected');
         }
     }
     catch (error) {
-        console.log('SQL Injection Test Passed: No Vulnerability Detected');
+        console.log('NoSQL Injection Test Passed: No Vulnerability Detected');
     }
 };
 
@@ -38,7 +38,7 @@ const testXSS = async () => {
 };
 
 const runPenetrationTests = async () => {
-    await testSQLInjection();
+    await testNoSQLInjection();
     await testXSS();
 };
 
