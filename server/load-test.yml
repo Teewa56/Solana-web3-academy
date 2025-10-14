@@ -1,0 +1,18 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  scenarios:
+    - name: "Load Test Scenario for user account creation"
+      flow:
+        - get:
+            url: "/api/v1/status"
+        - post:
+            url: "/api/v1/data"
+            json:
+              key: "value"
+        - function: "createUserAccount"

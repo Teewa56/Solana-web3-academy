@@ -1,0 +1,1 @@
+//to run dynamic analysis tests, run 'node --inspect ./src/server'
