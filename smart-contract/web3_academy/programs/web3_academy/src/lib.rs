@@ -29,4 +29,27 @@ pub mod web3_academy_contract {
     ) -> Result<()> {
         create_course(ctx, title, description, media_url, cohort)
     }
+
+    pub fn submit_assignment(
+        ctx: Context<SubmitAssignment>,
+        course: Pubkey,
+        submission_link: String,
+    ) -> Result<()> {
+        submit_assignment(ctx, course, submission_link)
+    }
+
+    pub fn grade_assignment(ctx: Context<GradeAssignment>, grade: u8) -> Result<()> {
+        grade_assignment(ctx, grade)
+    }
+
+    pub fn mint_certificate(
+        ctx: Context<MintCertificate>,
+        course: Pubkey,
+        uri: String,
+        name: String,
+        symbol: String,
+    ) -> Result<()> {
+        mint_certificate(ctx, course, uri, name, symbol)
+    }
+
 }
