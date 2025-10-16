@@ -181,20 +181,19 @@ pub struct MintCertificate<'info> {
     pub mint: Account<'info, Mint>,
     
     #[account(
-        init_if_needed,
+        init,
         payer = payer,
-        associated_token::mint = mint,
-        associated_token::authority = payer
+        space = 8 + 165,
     )]
     pub token_account: Account<'info, TokenAccount>,
     
     /// CHECK: Validated by Metaplex program
     #[account(mut)]
-    pub metadata_account: UncheckedAccount<'info>,
+    pub metadata_account: AccountInfo<'info>,
     
     /// CHECK: Validated by Metaplex program
     #[account(mut)]
-    pub master_edition_account: UncheckedAccount<'info>,
+    pub master_edition_account: AccountInfo<'info>,
     
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -206,7 +205,7 @@ pub struct MintCertificate<'info> {
     
     /// CHECK: Metaplex Token Metadata Program
     #[account(address = mpl_token_metadata::ID)]
-    pub token_metadata_program: UncheckedAccount<'info>,
+    pub token_metadata_program: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]

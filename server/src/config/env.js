@@ -15,6 +15,7 @@ const env = {
     email: process.env.EMAIL,
     email_password: process.env.EMAIL_PASSWORD,
     smtp_host: process.env.EMAIL_HOST,
+    contract_program_id: process.env.CONTRACT_PROGRAM_ID
 };
 
 module.exports = env;

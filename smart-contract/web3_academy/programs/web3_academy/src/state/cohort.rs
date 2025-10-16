@@ -13,7 +13,7 @@ pub struct CohortAccount {
     pub status: CohortStatus,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Debug, InitSpace)]
 pub enum CohortStatus {
     Upcoming,
     Active,

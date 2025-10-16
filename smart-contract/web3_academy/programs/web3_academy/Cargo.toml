@@ -10,19 +10,24 @@ name = "web3_academy"
 
 [features]
 default = []
+init-if-needed = []
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
-idl-build = ["anchor-lang/idl-build"]
+idl-build = ["anchor-spl/idl-build"]
 anchor-debug = []
 custom-heap = []
 custom-panic = []
 
-
 [dependencies]
-anchor-lang = "0.32.1"
-
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+mpl-token-metadata = { version = "3.1.0"}
+# SPL Token (only one version)
+spl-token = "3.5"
+# Solana Program Library
+solana-program = "1.17"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

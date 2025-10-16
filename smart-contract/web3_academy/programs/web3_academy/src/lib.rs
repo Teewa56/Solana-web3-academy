@@ -1,13 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{self, Mint, MintTo, Token, TokenAccount, Transfer},
-};
-use mpl_token_metadata::{
-    instruction::{create_master_edition_v3, create_metadata_accounts_v3},
-    state::{Creator, DataV2},
-};
-use solana_program::program::invoke;
+use anchor_spl::token::{self, Transfer, MintTo};
 
 pub mod error;
 pub mod instructions;
@@ -154,14 +146,13 @@ pub mod web3_academy {
     // ==================== NFT CERTIFICATE ====================
     pub fn mint_certificate(
         ctx: Context<MintCertificate>,
-        course_key: Pubkey,
-        uri: String,
+        _course_key: Pubkey,
+        _uri: String,
         name: String,
-        symbol: String,
+        _symbol: String,
     ) -> Result<()> {
-        msg!("Minting certificate NFT");
-
-        // Mint 1 token to the token account
+        msg!("Minting NFT certificate....");
+        // Mint token
         let cpi_accounts = MintTo {
             mint: ctx.accounts.mint.to_account_info(),
             to: ctx.accounts.token_account.to_account_info(),
@@ -171,86 +162,7 @@ pub mod web3_academy {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::mint_to(cpi_ctx, 1)?;
 
-        msg!("Token minted");
-
-        // Create metadata account
-        let creators = vec![Creator {
-            address: ctx.accounts.payer.key(),
-            verified: true,
-            share: 100,
-        }];
-
-        let data_v2 = DataV2 {
-            name,
-            symbol,
-            uri,
-            seller_fee_basis_points: 0,
-            creators: Some(creators),
-            collection: None,
-            uses: None,
-        };
-
-        let metadata_instruction = create_metadata_accounts_v3(
-            ctx.accounts.token_metadata_program.key(),
-            ctx.accounts.metadata_account.key(),
-            ctx.accounts.mint.key(),
-            ctx.accounts.payer.key(),
-            ctx.accounts.payer.key(),
-            ctx.accounts.payer.key(),
-            data_v2.name,
-            data_v2.symbol,
-            data_v2.uri,
-            data_v2.creators,
-            data_v2.seller_fee_basis_points,
-            true,
-            true,
-            None,
-            None,
-            None,
-        );
-
-        invoke(
-            &metadata_instruction,
-            &[
-                ctx.accounts.metadata_account.to_account_info(),
-                ctx.accounts.mint.to_account_info(),
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-                ctx.accounts.rent.to_account_info(),
-            ],
-        )?;
-
-        msg!("Metadata account created");
-
-        // Create master edition account
-        let master_edition_instruction = create_master_edition_v3(
-            ctx.accounts.token_metadata_program.key(),
-            ctx.accounts.master_edition_account.key(),
-            ctx.accounts.mint.key(),
-            ctx.accounts.payer.key(),
-            ctx.accounts.payer.key(),
-            ctx.accounts.metadata_account.key(),
-            ctx.accounts.payer.key(),
-            Some(0),
-        );
-
-        invoke(
-            &master_edition_instruction,
-            &[
-                ctx.accounts.master_edition_account.to_account_info(),
-                ctx.accounts.metadata_account.to_account_info(),
-                ctx.accounts.mint.to_account_info(),
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.payer.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-                ctx.accounts.rent.to_account_info(),
-            ],
-        )?;
-
-        msg!("Master edition created");
-        msg!("Certificate NFT minted for course: {:?}", course_key);
+        msg!("Certificate NFT minted successfully for: {}", name);
         Ok(())
     }
 
@@ -264,11 +176,10 @@ pub mod web3_academy {
             authority: ctx.accounts.authority.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-        
-        token::transfer(cpi_context, 1)?;
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::transfer(cpi_ctx, 1)?;
 
-        msg!("Certificate transferred to student");
+        msg!("Certificate transferred");
         Ok(())
     }
 }
