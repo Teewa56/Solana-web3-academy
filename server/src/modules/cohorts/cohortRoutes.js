@@ -5,8 +5,8 @@ const {
     updateCohort,
     listCohorts,
     getCohortStudents
-} = require('../cohorts/cohortController');
-const { requireAdmin } = require('../middleware/roleCheck');
+} = require('./cohortController');
+const { requireAdmin } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 

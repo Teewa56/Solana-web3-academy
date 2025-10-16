@@ -1,6 +1,6 @@
-const Submission = require('../modules/models/submissionModel');
-const Assignment = require('../modules/models/assignmentModel');
-const Student = require('../modules/students/studentModel');
+const Submission = require('../models/submissionModel');
+const Assignment = require('../models/assignmentModel');
+const Student = require('../students/studentModel');
 
 const submitAssignment = async (req, res) => {
     try {

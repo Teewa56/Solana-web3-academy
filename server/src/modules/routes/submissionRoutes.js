@@ -3,8 +3,8 @@ const {
     submitAssignment,
     getSubmissions,
     gradeAssignment
-} = require('../modules/cohorts/submissionController');
-const { requireAdmin } = require('../middleware/roleCheck');
+} = require('../controllers/submissionController');
+const { requireAdmin } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 

@@ -4,8 +4,8 @@ const {
     getAssignment,
     updateAssignment,
     listAssignmentsByCourse
-} = require('../modules/cohorts/assignmentController');
-const { requireAdmin } = require('../middleware/roleCheck');
+} = require('../controllers/assignmentController');
+const { requireAdmin } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 

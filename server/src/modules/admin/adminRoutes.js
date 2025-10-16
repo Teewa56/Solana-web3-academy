@@ -4,7 +4,7 @@ const {
     promoteUserToAdmin,
     removeUser,
     getAdminStats
-} = require('../admin/adminController');
+} = require('./adminController');
 const { requireAdmin } = require('../middleware/roleCheck');
 
 const router = express.Router();

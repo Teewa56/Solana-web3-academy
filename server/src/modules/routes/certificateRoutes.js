@@ -3,7 +3,7 @@ const {
     generateCertificate,
     mintNFT,
     getUserCertificates
-} = require('../modules/chain-logic/certificateController');
+} = require('../controllers/certificateController');
 
 const router = express.Router();
 

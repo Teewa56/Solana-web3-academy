@@ -1,5 +1,5 @@
-const Student = require('../modules/students/studentModel');
-const Course = require('../modules/courses/courseModel');
+const Student = require('../students/studentModel');
+const Course = require('../courses/courseModel');
 const axios = require('axios');
 const { contract_program_id } = require('../../config/env');
 

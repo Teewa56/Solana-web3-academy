@@ -1,4 +1,4 @@
-const Cohort = require('../modules/cohorts/cohortModel');
+const Cohort = require('./cohortModel');
 
 const createCohort = async (req, res) => {
     try {

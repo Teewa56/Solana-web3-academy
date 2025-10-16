@@ -1,6 +1,6 @@
-const User = require('../modules/models/userModel');
-const Student = require('../modules/students/studentModel');
-const Admin = require('../modules/admin/adminModel');
+const User = require('../models/userModel');
+const Student = require('../students/studentModel');
+const Admin = require('./adminModel');
 
 const getAllUsers = async (req, res) => {
     try {

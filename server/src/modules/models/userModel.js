@@ -12,8 +12,8 @@ const userSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true },
     isEmailVerified: { type: Boolean, default: false },
     isPasswordReset: { type: Boolean, default: false },
-    resetPasswordToken: {type: String, default: null},
-    resetPasswordExpires: {type: Date, default: null},
+    otp: {type: String, default: null},
+    otpExpires: {type: Date, default: null},
     solanaWallet: { type: String, required: false }, // User's public key
 }, { timestamps: true });
 

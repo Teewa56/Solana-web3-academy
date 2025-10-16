@@ -1,6 +1,5 @@
-const Student = require('../modules/students/studentModel');
-const User = require('../modules/models/userModel');
-const Cohort = require('../modules/cohorts/cohortModel');
+const Student = require('./studentModel');
+const Cohort = require('../cohorts/cohortModel');
 
 const getStudent = async (req, res) => {
     try {

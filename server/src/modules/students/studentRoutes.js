@@ -3,7 +3,7 @@ const {
     getStudent,
     updateStudent,
     enrollInCohort
-} = require('../modules/students/studentController');
+} = require('./studentController');
 
 const router = express.Router();
 

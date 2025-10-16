@@ -1,11 +1,12 @@
-const User = require('../modules/models/userModel');
-const { generateAccessToken, generateRefreshToken } = require('../utils/jwtHelpers');
-const { hashPassword, comparePassword, generateOTP, verifyOTP } = require('../utils/authHelpers');
-const sendEmail = require('../utils/emailService');
+const User = require('../models/userModel');
+const Student = require('../students/studentModel');
+const { generateAccessToken, generateRefreshToken } = require('../../utils/jwtHelpers');
+const { hashPassword, comparePassword, generateOTP, verifyOTP } = require('../../utils/authHelpers');
+const sendEmail = require('../../utils/emailService');
 
 const register = async (req, res) => {
     try {
-        const { fullName, email, password } = req.body;
+        const { fullName, email, password, role='student' } = req.body;
         
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -19,7 +20,9 @@ const register = async (req, res) => {
             fullName,
             email,
             password: hashedPassword,
-            role: 'student'
+            role,
+            otp,
+            otpExpires: Date.now() + (10 * 60 * 1000)
         });
         
         await user.save();
@@ -37,7 +40,119 @@ const register = async (req, res) => {
     }
 };
 
-//verifyotp function for sign up
+const verifyEmail = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        
+        const userData = User.findOne({email});
+        
+        if (!userData) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'OTP expired or not found. Please register again.' 
+            });
+        }
+        
+        if (Date.now() > userData.otpExpires) {
+            User.findByIdAndDelete({email});
+            return res.status(400).json({ 
+                success: false, 
+                message: 'OTP expired. Please register again.' 
+            });
+        }
+        
+        if (!verifyOTP(otp, userData.otp)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid OTP' 
+            });
+        }
+              
+        userData.isEmailVerified = true;
+        userData.isActive = true;
+        
+        // Create student profile
+        if(userData.role == 'student'){
+            const student = new Student({
+                user: userData._id,
+                points: 0,
+                coursesCompleted: 0,
+                badges: []
+            });
+            await student.save();
+        }
+        
+        userData.otp = null;
+        userData.otpExpires = null;
+        
+        await userData.save();
+
+        // Send welcome email
+        await sendEmail({
+            to: email,
+            subject: 'Welcome to Web3 Academy!',
+            template: 'welcomeEmail',
+            data: { name: userData.fullName }
+        });
+        
+        // Generate tokens
+        const accessToken = generateAccessToken({ id: userData._id, role: userData.role });
+        const refreshToken = generateRefreshToken({ id: userData._id });
+        
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+        
+        res.status(201).json({
+            success: true,
+            message: 'Email verified successfully',
+            accessToken,
+            userData: {
+                id: userData._id,
+                fullName: userData.fullName,
+                email: userData.email,
+                role: userData.role
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const resendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        const userData = User.findOne(email);
+        
+        if (!userData) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'No registration found. Please register first.' 
+            });
+        }
+        
+        const newOTP = generateOTP();
+        
+        // Update OTP with new expiry
+        userData.otp = newOTP;
+        userData.otpExpires = Date.now() + (10 * 60 * 1000);
+
+        await userData.save();
+        
+        await sendEmail({
+            to: email,
+            subject: 'Your New OTP - Solana Web3 Academy',
+            template: 'otpEmail',
+            data: { otp: newOTP }
+        });
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'New OTP sent to email' 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 const login = async (req, res) => {
     try {
@@ -149,6 +264,8 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
     register,
+    verifyEmail,
+    resendOTP,
     login,
     logout,
     refreshToken,
