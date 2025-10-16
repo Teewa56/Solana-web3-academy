@@ -1,4 +1,4 @@
-export const requireAdmin = (req, res, next) => {
+const requireAdmin = (req, res, next) => {
     if (req.user.role !== 'admin') {
         return res.status(403).json({ 
             message: 'Role available to admin only' 

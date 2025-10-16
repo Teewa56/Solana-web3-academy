@@ -10,6 +10,4 @@ const cohortSchema = new mongoose.Schema({
     status: { type: String, enum: ['active', 'completed', 'upcoming'], default: 'upcoming' },
 }, { timestamps: true });
 
-cohortSchema.index({ name: 1 });
-
 module.exports = mongoose.model('Cohort', cohortSchema);

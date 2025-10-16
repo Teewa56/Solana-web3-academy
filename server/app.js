@@ -8,20 +8,20 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
-const {cors_origin_dev, cors_origin_prod, production_enviroment} = require('./config/env');
-const rateLimiter = require('./middleware/rateLimiter');
-const errorMiddleware = require('./middleware/errorMiddleware');
-const authMiddleware = require('./middleware/authMiddleware');
+const {cors_origin_dev, cors_origin_prod, production_enviroment} = require('./src/config/env');
+const rateLimiter = require('./src/middleware/rateLimiter');
+const errorMiddleware = require('./src/middleware/errorMiddleware');
+const authMiddleware = require('./src/middleware/authMiddleware');
 
-const authRoutes = require('./modules/auth/authRoutes');
-const userRoutes = require('./modules/users/userRoutes');
-const studentRoutes = require('./modules/students/studentRoutes');
-const cohortRoutes = require('./modules/cohorts/cohortRoutes');
-const courseRoutes = require('./modules/courses/courseRoutes');
-const assignmentRoutes = require('./modules/cohorts/assignmentRoutes');
-const submissionRoutes = require('./modules/cohorts/submissionRoutes');
-const certificateRoutes = require('./modules/chain-logic/certificateRoutes');
-const adminRoutes = require('./modules/admin/adminRoutes');
+const authRoutes = require('./src/modules/auth/authRoutes');
+const userRoutes = require('./src/modules/routes/userRoutes');
+const studentRoutes = require('./src/modules/students/studentRoutes');
+const cohortRoutes = require('./src/modules/cohorts/cohortRoutes');
+const courseRoutes = require('./src/modules/courses/courseRoutes');
+const assignmentRoutes = require('./src/modules/routes/assignmentRoutes');
+const submissionRoutes = require('./src/modules/routes/submissionRoutes');
+const certificateRoutes = require('./src/modules/routes/certificateRoutes');
+const adminRoutes = require('./src/modules/admin/adminRoutes');
 
 const app = express();
 

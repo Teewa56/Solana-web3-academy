@@ -5,7 +5,7 @@ const {
     removeUser,
     getAdminStats
 } = require('./adminController');
-const { requireAdmin } = require('../middleware/roleCheck');
+const { requireAdmin } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 

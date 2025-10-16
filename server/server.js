@@ -1,7 +1,7 @@
 const http = require('http');
 const app = require('./app');
-const { port } = require('./config/env');
-const connectDB = require('./config/dbConfig');
+const { port } = require('./src/config/env');
+const connectDB = require('./src/config/dbConfig');
 
 const server = http.createServer(app);
 
