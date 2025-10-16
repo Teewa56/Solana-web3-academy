@@ -7,7 +7,13 @@ const studentSchema = new mongoose.Schema({
     cohort: { type: mongoose.Schema.Types.ObjectId, ref: 'Cohort' },
     points: { type: Number, default: 0 },
     coursesCompleted: { type: Number, default: 0 },
-    badges: [{ type: String }], // e.g., ["JavaScript Basics", "Blockchain 101"]
+    badges: [{ type: String }],
+    certificateMints: [{
+        course: ObjectId,
+        nftMint: String, // Token mint address
+        txId: String,    // Blockchain transaction
+        mintedAt: Date
+    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Student', studentSchema);

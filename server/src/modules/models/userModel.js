@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     isPasswordReset: { type: Boolean, default: false },
     resetPasswordToken: {type: String, default: null},
     resetPasswordExpires: {type: Date, default: null},
+    solanaWallet: { type: String, required: false }, // User's public key
 }, { timestamps: true });
 
 userSchema.index({ email: 1, fullName: 1 }, { unique: true });
