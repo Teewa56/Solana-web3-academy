@@ -21,13 +21,11 @@ custom-heap = []
 custom-panic = []
 
 [dependencies]
-anchor-lang = "0.29.0"
-anchor-spl = "0.29.0"
+anchor-lang = "0.30.0"
+anchor-spl = "0.30.0"
 mpl-token-metadata = { version = "3.1.0"}
 # SPL Token (only one version)
 spl-token = "3.5"
-# Solana Program Library
-solana-program = "1.17"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

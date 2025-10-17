@@ -22,6 +22,9 @@ const assignmentRoutes = require('./src/modules/routes/assignmentRoutes');
 const submissionRoutes = require('./src/modules/routes/submissionRoutes');
 const certificateRoutes = require('./src/modules/routes/certificateRoutes');
 const adminRoutes = require('./src/modules/admin/adminRoutes');
+const gamificationRoutes = require('./src/modules/routes/gamificationRoutes');
+const enrollmentRoutes = require('./src/modules/routes/enrollementRoutes');
+const uploadRoutes = require('./src/modules/routes/uploadRoutes');
 
 const app = express();
 
@@ -54,6 +57,9 @@ app.use('/api/v1/assignments', assignmentRoutes);
 app.use('/api/v1/submissions', submissionRoutes);
 app.use('/api/v1/certificates', certificateRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/enrollments', enrollmentRoutes);
+app.use('/api/v1/gamification', gamificationRoutes);
+app.use('/api/v1/upload', uploadRoutes);
 
 app.get('/api/v1/', (req, res) => {
     res.send('This is the backend for solana web3 academy');

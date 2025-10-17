@@ -3,7 +3,7 @@ const { Connection, PublicKey, Keypair, SystemProgram } = require('@solana/web3.
 const { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } = require('@solana/spl-token');
 const fs = require('fs');
 const path = require('path');
-const logger = require('./logger');
+const logger = require('../utils/logger');
 
 class SolanaService {
     constructor() {
