@@ -4,6 +4,8 @@ const { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress
 const fs = require('fs');
 const path = require('path');
 const logger = require('../utils/logger');
+require('dotenv').config();
+const { contract_program_id } = require('../config/env');
 
 class SolanaService {
     constructor() {
@@ -19,15 +21,20 @@ class SolanaService {
             // Connect to Solana devnet
             const rpcUrl = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
             this.connection = new Connection(rpcUrl, 'confirmed');
+            logger.info(`Connected to Solana: ${rpcUrl}`);
 
             // Load wallet from filesystem
             const walletPath = process.env.WALLET_PATH || path.join(process.env.HOME, '.config/solana/id.json');
-            const walletKeypair = Keypair.fromSecretKey(
-                Buffer.from(JSON.parse(fs.readFileSync(walletPath, 'utf-8')))
-            );
-
-            // Create wallet
+            
+            if (!fs.existsSync(walletPath)) {
+                throw new Error(`Wallet file not found at: ${walletPath}`);
+            }
+            
+            const walletData = JSON.parse(fs.readFileSync(walletPath, 'utf-8'));
+            const walletKeypair = Keypair.fromSecretKey(Buffer.from(walletData));
             this.wallet = new anchor.Wallet(walletKeypair);
+
+            logger.info(`Using wallet: ${this.wallet.publicKey.toBase58()}`);
 
             // Create provider
             this.provider = new anchor.AnchorProvider(
@@ -35,23 +42,46 @@ class SolanaService {
                 this.wallet,
                 { commitment: 'confirmed' }
             );
-
             anchor.setProvider(this.provider);
 
-            // Load program
-            this.programId = new PublicKey(process.env.CONTRACT_PROGRAM_ID);
+            // Get program ID
+            const programIdStr = contract_program_id || process.env.CONTRACT_PROGRAM_ID;
             
-            // Load IDL
-            const idlPath = path.join(__dirname, '../../idl/web3_academy.json');
-            const idl = JSON.parse(fs.readFileSync(idlPath, 'utf-8'));
+            if (!programIdStr) {
+                throw new Error('CONTRACT_PROGRAM_ID environment variable is not set');
+            }
+
+            this.programId = new PublicKey(programIdStr);
+            logger.info(`Program ID: ${this.programId.toBase58()}`);
+
+            // Load and validate IDL
+            const idlPath = path.join(__dirname, '../../idl/idl.json');
+            if (!fs.existsSync(idlPath)) {
+                throw new Error(`IDL file not found at ${idlPath}`);
+            }
             
-            this.program = new anchor.Program(idl, this.programId, this.provider);
+            const idlData = fs.readFileSync(idlPath, 'utf-8');
+            let idl = JSON.parse(idlData);
+            
+            // Ensure IDL has the correct structure
+            if (!idl.metadata) {
+                idl.metadata = {};
+            }
+            
+            // Set the program address in the IDL metadata
+            idl.metadata.address = this.programId.toBase58();
+            
+            logger.info('IDL loaded and validated successfully');
+
+            // Create program
+            this.program = new anchor.Program(
+                idl,
+                this.provider,
+            );
 
             logger.info('Solana service initialized successfully');
-            logger.info(`Program ID: ${this.programId.toBase58()}`);
-            logger.info(`Wallet: ${this.wallet.publicKey.toBase58()}`);
-
             return true;
+            
         } catch (error) {
             logger.error('Failed to initialize Solana service:', error);
             throw error;
@@ -95,7 +125,7 @@ class SolanaService {
                 [Buffer.from('cohort'), Buffer.from(name)],
                 this.programId
             );
-
+            if (!creatorPubkey) throw new Error("creatorPubkey is undefined");
             const [roleAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('role'), new PublicKey(creatorPubkey).toBuffer()],
                 this.programId
@@ -240,6 +270,8 @@ class SolanaService {
     // Submit assignment
     async submitAssignment(studentPubkey, coursePubkey, submissionLink) {
         try {
+            if (!studentPubkey) throw new Error("studentPubkey is undefined");
+            if (!coursePubkey) throw new Error("coursePubkey is undefined");
             const [submissionAccount] = PublicKey.findProgramAddressSync(
                 [
                     Buffer.from('submission'),
