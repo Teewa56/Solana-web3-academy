@@ -44,10 +44,6 @@ app.use(compression());
 app.use(rateLimiter);
 app.use(authMiddleware);
 
-app.get('/api/v1/health', (req, res) => {
-    res.json({ success: true, message: 'Server is healthy' });
-});
-
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/students', studentRoutes);
@@ -61,12 +57,12 @@ app.use('/api/v1/enrollments', enrollmentRoutes);
 app.use('/api/v1/gamification', gamificationRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 
-app.get('/api/v1/', (req, res) => {
-    res.send('This is the backend for solana web3 academy');
-});
-
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
+});
+
+app.get('/api/v1/health', (req, res) => {
+    res.json({ success: true, message: 'Server is healthy' });
 });
 
 app.use(errorMiddleware);

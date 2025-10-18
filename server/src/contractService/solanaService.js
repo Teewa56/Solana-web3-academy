@@ -1,29 +1,30 @@
-const anchor = require('@coral-xyz/anchor');
 const { Connection, PublicKey, Keypair, SystemProgram } = require('@solana/web3.js');
-const { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } = require('@solana/spl-token');
 const fs = require('fs');
 const path = require('path');
 const logger = require('../utils/logger');
-require('dotenv').config();
-const { contract_program_id } = require('../config/env');
 
 class SolanaService {
     constructor() {
         this.connection = null;
-        this.provider = null;
-        this.program = null;
         this.wallet = null;
         this.programId = null;
     }
 
     async initialize() {
         try {
-            // Connect to Solana devnet
-            const rpcUrl = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
-            this.connection = new Connection(rpcUrl, 'confirmed');
-            logger.info(`Connected to Solana: ${rpcUrl}`);
+            await this.connectWallet();
+            await this.setupConnection();
+            
+            logger.info('Solana service initialized successfully');
+            return true;
+        } catch (error) {
+            logger.error('Failed to initialize Solana service:', error);
+            throw error;
+        }
+    }
 
-            // Load wallet from filesystem
+    async connectWallet() {
+        try {
             const walletPath = process.env.WALLET_PATH || path.join(process.env.HOME, '.config/solana/id.json');
             
             if (!fs.existsSync(walletPath)) {
@@ -31,86 +32,78 @@ class SolanaService {
             }
             
             const walletData = JSON.parse(fs.readFileSync(walletPath, 'utf-8'));
-            const walletKeypair = Keypair.fromSecretKey(Buffer.from(walletData));
-            this.wallet = new anchor.Wallet(walletKeypair);
+            this.wallet = Keypair.fromSecretKey(Buffer.from(walletData));
 
             logger.info(`Using wallet: ${this.wallet.publicKey.toBase58()}`);
-
-            // Create provider
-            this.provider = new anchor.AnchorProvider(
-                this.connection,
-                this.wallet,
-                { commitment: 'confirmed' }
-            );
-            anchor.setProvider(this.provider);
-
-            // Get program ID
-            const programIdStr = contract_program_id || process.env.CONTRACT_PROGRAM_ID;
+            return this.wallet;
             
+        } catch (error) {
+            logger.error('Failed to connect wallet:', error);
+            throw error;
+        }
+    }
+
+    async setupConnection() {
+        try {
+            const rpcUrl = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+            this.connection = new Connection(rpcUrl, 'confirmed');
+            logger.info(`Connected to Solana: ${rpcUrl}`);
+
+            const programIdStr = process.env.CONTRACT_PROGRAM_ID;
             if (!programIdStr) {
                 throw new Error('CONTRACT_PROGRAM_ID environment variable is not set');
             }
 
             this.programId = new PublicKey(programIdStr);
             logger.info(`Program ID: ${this.programId.toBase58()}`);
-
-            // Load and validate IDL
-            const idlPath = path.join(__dirname, '../../idl/idl.json');
-            if (!fs.existsSync(idlPath)) {
-                throw new Error(`IDL file not found at ${idlPath}`);
-            }
-            
-            const idlData = fs.readFileSync(idlPath, 'utf-8');
-            let idl = JSON.parse(idlData);
-            
-            // Ensure IDL has the correct structure
-            if (!idl.metadata) {
-                idl.metadata = {};
-            }
-            
-            // Set the program address in the IDL metadata
-            idl.metadata.address = this.programId.toBase58();
-            
-            logger.info('IDL loaded and validated successfully');
-
-            // Create program
-            this.program = new anchor.Program(
-                idl,
-                this.provider,
-            );
-
-            logger.info('Solana service initialized successfully');
-            return true;
             
         } catch (error) {
-            logger.error('Failed to initialize Solana service:', error);
+            logger.error('Failed to setup connection:', error);
             throw error;
         }
     }
 
-    // Create role account for user
+    // STEP 1: Generate PDA (local - no RPC)
+    // STEP 2: Check if exists (RPC call)
+    // STEP 3: Prepare for transaction (return data to frontend)
     async createRole(userPubkey, isAdmin = false, isInstructor = false) {
         try {
+            // STEP 1: Generate PDA locally
             const [roleAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('role'), new PublicKey(userPubkey).toBuffer()],
                 this.programId
             );
+            logger.info(`STEP 1 - PDA generated: ${roleAccount.toBase58()}`);
 
-            const tx = await this.program.methods
-                .createRole(isAdmin, isInstructor)
-                .accounts({
-                    role: roleAccount,
-                    authority: new PublicKey(userPubkey),
-                    systemProgram: SystemProgram.programId,
-                })
-                .rpc();
+            // STEP 2: Check if account exists on blockchain (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(roleAccount);
+            logger.info(`STEP 2 - RPC Check: Account ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            logger.info(`Role created for ${userPubkey}: ${tx}`);
-            
+            if (accountInfo) {
+                return {
+                    success: true,
+                    roleAccount: roleAccount.toBase58(),
+                    exists: true,
+                    message: 'Role account already exists on-chain'
+                };
+            }
+
+            // STEP 3: Account doesn't exist - prepare data for frontend to send transaction
             return {
                 success: true,
                 roleAccount: roleAccount.toBase58(),
-                txId: tx
+                exists: false,
+                isAdmin,
+                isInstructor,
+                message: 'Role account ready to be created. Frontend must send transaction.',
+                instruction: {
+                    programId: this.programId.toBase58(),
+                    accounts: [
+                        { pubkey: roleAccount.toBase58(), isMut: true, isSigner: false },
+                        { pubkey: userPubkey, isMut: true, isSigner: true },
+                        { pubkey: SystemProgram.programId.toBase58(), isMut: false, isSigner: false }
+                    ]
+                }
             };
         } catch (error) {
             logger.error('Error creating role:', error);
@@ -118,40 +111,47 @@ class SolanaService {
         }
     }
 
-    // Create cohort
     async createCohort(name, description, startDate, endDate, creatorPubkey) {
         try {
+            // STEP 1: Generate PDA locally
             const [cohortAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('cohort'), Buffer.from(name)],
                 this.programId
             );
-            if (!creatorPubkey) throw new Error("creatorPubkey is undefined");
-            const [roleAccount] = PublicKey.findProgramAddressSync(
-                [Buffer.from('role'), new PublicKey(creatorPubkey).toBuffer()],
-                this.programId
-            );
+            logger.info(`STEP 1 - Cohort PDA generated: ${cohortAccount.toBase58()}`);
 
-            const tx = await this.program.methods
-                .createCohort(
-                    name,
-                    description,
-                    new anchor.BN(startDate),
-                    new anchor.BN(endDate)
-                )
-                .accounts({
-                    cohort: cohortAccount,
-                    role: roleAccount,
-                    authority: new PublicKey(creatorPubkey),
-                    systemProgram: SystemProgram.programId,
-                })
-                .rpc();
+            // STEP 2: Check if account exists on blockchain (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(cohortAccount);
+            logger.info(`STEP 2 - RPC Check: Cohort ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            logger.info(`Cohort created: ${tx}`);
-            
+            if (accountInfo) {
+                return {
+                    success: true,
+                    cohortAccount: cohortAccount.toBase58(),
+                    exists: true,
+                    message: 'Cohort account already exists on-chain'
+                };
+            }
+
+            // STEP 3: Return data for frontend
             return {
                 success: true,
                 cohortAccount: cohortAccount.toBase58(),
-                txId: tx
+                exists: false,
+                name,
+                description,
+                startDate,
+                endDate,
+                creatorPubkey,
+                message: 'Cohort account ready to be created. Frontend must send transaction.',
+                instruction: {
+                    programId: this.programId.toBase58(),
+                    accounts: [
+                        { pubkey: cohortAccount.toBase58(), isMut: true, isSigner: false },
+                        { pubkey: creatorPubkey, isMut: true, isSigner: true },
+                        { pubkey: SystemProgram.programId.toBase58(), isMut: false, isSigner: false }
+                    ]
+                }
             };
         } catch (error) {
             logger.error('Error creating cohort:', error);
@@ -159,36 +159,39 @@ class SolanaService {
         }
     }
 
-    // Update cohort status
     async updateCohortStatus(cohortName, newStatus, authorityPubkey) {
         try {
+            // STEP 1: Generate PDA locally
             const [cohortAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('cohort'), Buffer.from(cohortName)],
                 this.programId
             );
+            logger.info(`STEP 1 - Cohort PDA: ${cohortAccount.toBase58()}`);
 
-            const [roleAccount] = PublicKey.findProgramAddressSync(
-                [Buffer.from('role'), new PublicKey(authorityPubkey).toBuffer()],
-                this.programId
-            );
+            // STEP 2: Check if account exists (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(cohortAccount);
+            logger.info(`STEP 2 - RPC Check: Cohort ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            // Convert status string to enum
-            const statusEnum = { [newStatus.toLowerCase()]: {} };
+            if (!accountInfo) {
+                return {
+                    success: false,
+                    message: 'Cohort account does not exist on-chain'
+                };
+            }
 
-            const tx = await this.program.methods
-                .updateCohortStatus(statusEnum)
-                .accounts({
-                    cohort: cohortAccount,
-                    role: roleAccount,
-                    authority: new PublicKey(authorityPubkey),
-                })
-                .rpc();
-
-            logger.info(`Cohort status updated: ${tx}`);
-            
+            // STEP 3: Return data for frontend
             return {
                 success: true,
-                txId: tx
+                cohortAccount: cohortAccount.toBase58(),
+                newStatus,
+                message: 'Cohort ready for status update. Frontend must send transaction.',
+                instruction: {
+                    programId: this.programId.toBase58(),
+                    accounts: [
+                        { pubkey: cohortAccount.toBase58(), isMut: true, isSigner: false },
+                        { pubkey: authorityPubkey, isMut: false, isSigner: true }
+                    ]
+                }
             };
         } catch (error) {
             logger.error('Error updating cohort status:', error);
@@ -196,40 +199,39 @@ class SolanaService {
         }
     }
 
-    // Create course
     async createCourse(title, description, mediaUrl, cohortPubkey, instructorPubkey) {
         try {
+            // STEP 1: Generate PDA locally
             const [courseAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('course'), Buffer.from(title)],
                 this.programId
             );
+            logger.info(`STEP 1 - Course PDA: ${courseAccount.toBase58()}`);
 
-            const [roleAccount] = PublicKey.findProgramAddressSync(
-                [Buffer.from('role'), new PublicKey(instructorPubkey).toBuffer()],
-                this.programId
-            );
+            // STEP 2: Check if exists (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(courseAccount);
+            logger.info(`STEP 2 - RPC Check: Course ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            const tx = await this.program.methods
-                .createCourse(
-                    title,
-                    description,
-                    mediaUrl,
-                    new PublicKey(cohortPubkey)
-                )
-                .accounts({
-                    course: courseAccount,
-                    role: roleAccount,
-                    authority: new PublicKey(instructorPubkey),
-                    systemProgram: SystemProgram.programId,
-                })
-                .rpc();
+            if (accountInfo) {
+                return {
+                    success: true,
+                    courseAccount: courseAccount.toBase58(),
+                    exists: true,
+                    message: 'Course account already exists'
+                };
+            }
 
-            logger.info(`Course created: ${tx}`);
-            
+            // STEP 3: Return data for frontend
             return {
                 success: true,
                 courseAccount: courseAccount.toBase58(),
-                txId: tx
+                exists: false,
+                title,
+                description,
+                mediaUrl,
+                cohortPubkey,
+                instructorPubkey,
+                message: 'Course ready to be created. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error creating course:', error);
@@ -237,29 +239,36 @@ class SolanaService {
         }
     }
 
-    // Enroll student
     async enrollStudent(studentPubkey, cohortPubkey) {
         try {
+            // STEP 1: Generate PDA locally
             const [enrollmentAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('enrollment'), new PublicKey(studentPubkey).toBuffer()],
                 this.programId
             );
+            logger.info(`STEP 1 - Enrollment PDA: ${enrollmentAccount.toBase58()}`);
 
-            const tx = await this.program.methods
-                .enrollStudent(new PublicKey(cohortPubkey))
-                .accounts({
-                    enrollment: enrollmentAccount,
-                    student: new PublicKey(studentPubkey),
-                    systemProgram: SystemProgram.programId,
-                })
-                .rpc();
+            // STEP 2: Check if exists (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(enrollmentAccount);
+            logger.info(`STEP 2 - RPC Check: Enrollment ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            logger.info(`Student enrolled: ${tx}`);
-            
+            if (accountInfo) {
+                return {
+                    success: true,
+                    enrollmentAccount: enrollmentAccount.toBase58(),
+                    exists: true,
+                    message: 'Student already enrolled'
+                };
+            }
+
+            // STEP 3: Return data for frontend
             return {
                 success: true,
                 enrollmentAccount: enrollmentAccount.toBase58(),
-                txId: tx
+                exists: false,
+                studentPubkey,
+                cohortPubkey,
+                message: 'Student ready to enroll. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error enrolling student:', error);
@@ -267,11 +276,12 @@ class SolanaService {
         }
     }
 
-    // Submit assignment
     async submitAssignment(studentPubkey, coursePubkey, submissionLink) {
         try {
             if (!studentPubkey) throw new Error("studentPubkey is undefined");
             if (!coursePubkey) throw new Error("coursePubkey is undefined");
+            
+            // STEP 1: Generate PDA locally
             const [submissionAccount] = PublicKey.findProgramAddressSync(
                 [
                     Buffer.from('submission'),
@@ -280,23 +290,27 @@ class SolanaService {
                 ],
                 this.programId
             );
+            logger.info(`STEP 1 - Submission PDA: ${submissionAccount.toBase58()}`);
 
-            const tx = await this.program.methods
-                .submitAssignment(new PublicKey(coursePubkey), submissionLink)
-                .accounts({
-                    submission: submissionAccount,
-                    course: new PublicKey(coursePubkey),
-                    student: new PublicKey(studentPubkey),
-                    systemProgram: SystemProgram.programId,
-                })
-                .rpc();
+            // STEP 2: Check if exists (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(submissionAccount);
+            logger.info(`STEP 2 - RPC Check: Submission ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            logger.info(`Assignment submitted: ${tx}`);
-            
+            if (accountInfo) {
+                return {
+                    success: false,
+                    message: 'Assignment already submitted'
+                };
+            }
+
+            // STEP 3: Return data for frontend
             return {
                 success: true,
                 submissionAccount: submissionAccount.toBase58(),
-                txId: tx
+                studentPubkey,
+                coursePubkey,
+                submissionLink,
+                message: 'Assignment ready to submit. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error submitting assignment:', error);
@@ -304,9 +318,16 @@ class SolanaService {
         }
     }
 
-    // Grade assignment
     async gradeAssignment(studentPubkey, coursePubkey, grade, instructorPubkey) {
         try {
+            if (grade < 0 || grade > 100) {
+                return {
+                    success: false,
+                    message: 'Grade must be between 0 and 100'
+                };
+            }
+
+            // STEP 1: Generate PDA locally
             const [submissionAccount] = PublicKey.findProgramAddressSync(
                 [
                     Buffer.from('submission'),
@@ -315,27 +336,26 @@ class SolanaService {
                 ],
                 this.programId
             );
+            logger.info(`STEP 1 - Submission PDA: ${submissionAccount.toBase58()}`);
 
-            const [roleAccount] = PublicKey.findProgramAddressSync(
-                [Buffer.from('role'), new PublicKey(instructorPubkey).toBuffer()],
-                this.programId
-            );
+            // STEP 2: Check if exists (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(submissionAccount);
+            logger.info(`STEP 2 - RPC Check: Submission ${accountInfo ? 'EXISTS' : 'DOES NOT EXIST'}`);
 
-            const tx = await this.program.methods
-                .gradeAssignment(grade)
-                .accounts({
-                    submission: submissionAccount,
-                    role: roleAccount,
-                    instructor: new PublicKey(instructorPubkey),
-                })
-                .rpc();
+            if (!accountInfo) {
+                return {
+                    success: false,
+                    message: 'Submission account not found'
+                };
+            }
 
-            logger.info(`Assignment graded: ${tx}`);
-            
+            // STEP 3: Return data for frontend
             return {
                 success: true,
-                txId: tx,
-                grade
+                submissionAccount: submissionAccount.toBase58(),
+                grade,
+                instructorPubkey,
+                message: 'Assignment ready to be graded. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error grading assignment:', error);
@@ -343,64 +363,16 @@ class SolanaService {
         }
     }
 
-    // Mint certificate NFT
     async mintCertificate(studentPubkey, coursePubkey, metadata) {
         try {
-            const mintKeypair = Keypair.generate();
-            
-            const [metadataAddress] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from('metadata'),
-                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s').toBuffer(),
-                    mintKeypair.publicKey.toBuffer(),
-                ],
-                new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
-            );
-
-            const [masterEditionAddress] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from('metadata'),
-                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s').toBuffer(),
-                    mintKeypair.publicKey.toBuffer(),
-                    Buffer.from('edition'),
-                ],
-                new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
-            );
-
-            const tokenAccount = await getAssociatedTokenAddress(
-                mintKeypair.publicKey,
-                this.wallet.publicKey
-            );
-
-            const tx = await this.program.methods
-                .mintCertificate(
-                    new PublicKey(coursePubkey),
-                    metadata.uri,
-                    metadata.name,
-                    metadata.symbol
-                )
-                .accounts({
-                    mint: mintKeypair.publicKey,
-                    tokenAccount: tokenAccount,
-                    metadataAccount: metadataAddress,
-                    masterEditionAccount: masterEditionAddress,
-                    payer: this.wallet.publicKey,
-                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-                    systemProgram: SystemProgram.programId,
-                    tokenProgram: TOKEN_PROGRAM_ID,
-                    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                    tokenMetadataProgram: new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'),
-                })
-                .signers([mintKeypair])
-                .rpc();
-
-            logger.info(`Certificate NFT minted: ${tx}`);
+            logger.info(`Preparing certificate mint for student: ${studentPubkey}`);
             
             return {
                 success: true,
-                mintAddress: mintKeypair.publicKey.toBase58(),
-                txId: tx,
-                metadataUri: metadata.uri
+                studentPubkey,
+                coursePubkey,
+                metadata,
+                message: 'Certificate ready to mint. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error minting certificate:', error);
@@ -408,34 +380,16 @@ class SolanaService {
         }
     }
 
-    // Transfer certificate to student
     async transferCertificate(mintPubkey, fromPubkey, toPubkey) {
         try {
-            const fromTokenAccount = await getAssociatedTokenAddress(
-                new PublicKey(mintPubkey),
-                new PublicKey(fromPubkey)
-            );
-
-            const toTokenAccount = await getAssociatedTokenAddress(
-                new PublicKey(mintPubkey),
-                new PublicKey(toPubkey)
-            );
-
-            const tx = await this.program.methods
-                .transferCertificate(new anchor.BN(1))
-                .accounts({
-                    from: fromTokenAccount,
-                    to: toTokenAccount,
-                    authority: this.wallet.publicKey,
-                    tokenProgram: TOKEN_PROGRAM_ID,
-                })
-                .rpc();
-
-            logger.info(`Certificate transferred: ${tx}`);
+            logger.info(`Preparing certificate transfer from ${fromPubkey} to ${toPubkey}`);
             
             return {
                 success: true,
-                txId: tx
+                mintPubkey,
+                fromPubkey,
+                toPubkey,
+                message: 'Certificate ready to transfer. Frontend must send transaction.'
             };
         } catch (error) {
             logger.error('Error transferring certificate:', error);
@@ -443,16 +397,32 @@ class SolanaService {
         }
     }
 
-    // Get account data
+    // Read data from blockchain (RPC call)
     async getCohortData(cohortName) {
         try {
+            // STEP 1: Generate PDA locally
             const [cohortAccount] = PublicKey.findProgramAddressSync(
                 [Buffer.from('cohort'), Buffer.from(cohortName)],
                 this.programId
             );
 
-            const data = await this.program.account.cohortAccount.fetch(cohortAccount);
-            return data;
+            // STEP 2: Fetch account data (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(cohortAccount);
+            logger.info(`STEP 2 - RPC: Fetched cohort account data`);
+            
+            if (!accountInfo) {
+                return {
+                    success: false,
+                    message: 'Cohort account not found on-chain'
+                };
+            }
+
+            return {
+                success: true,
+                cohortAccount: cohortAccount.toBase58(),
+                data: accountInfo.data,
+                owner: accountInfo.owner.toBase58()
+            };
         } catch (error) {
             logger.error('Error fetching cohort:', error);
             throw error;
@@ -461,6 +431,7 @@ class SolanaService {
 
     async getSubmissionData(studentPubkey, coursePubkey) {
         try {
+            // STEP 1: Generate PDA locally
             const [submissionAccount] = PublicKey.findProgramAddressSync(
                 [
                     Buffer.from('submission'),
@@ -470,15 +441,46 @@ class SolanaService {
                 this.programId
             );
 
-            const data = await this.program.account.assignmentSubmissionAccount.fetch(submissionAccount);
-            return data;
+            // STEP 2: Fetch account data (RPC call)
+            const accountInfo = await this.connection.getAccountInfo(submissionAccount);
+            logger.info(`STEP 2 - RPC: Fetched submission account data`);
+            
+            if (!accountInfo) {
+                return {
+                    success: false,
+                    message: 'Submission account not found on-chain'
+                };
+            }
+
+            return {
+                success: true,
+                submissionAccount: submissionAccount.toBase58(),
+                data: accountInfo.data,
+                owner: accountInfo.owner.toBase58()
+            };
         } catch (error) {
             logger.error('Error fetching submission:', error);
+            throw error;
+        }
+    }
+
+    // Get wallet balance (RPC call)
+    async getWalletBalance() {
+        try {
+            const balance = await this.connection.getBalance(this.wallet.publicKey);
+            logger.info(`Wallet balance: ${balance / 1e9} SOL`);
+            
+            return {
+                success: true,
+                balance: balance / 1e9,
+                lamports: balance
+            };
+        } catch (error) {
+            logger.error('Error getting wallet balance:', error);
             throw error;
         }
     }
 }
 
 const solanaService = new SolanaService();
-
 module.exports = solanaService;
