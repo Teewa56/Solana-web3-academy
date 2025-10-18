@@ -50,8 +50,9 @@ const submitAssignment = async (req, res) => {
 
         // Check deadline
         const now = new Date();
-        const isEarly = now < new Date(assignment.dueDate);
-        const isLate = now > new Date(assignment.dueDate);
+        const dueDate = new Date(assignment.dueDate);
+        const isEarly = now < dueDate;
+        const isLate = now > dueDate;
 
         if (isLate) {
             return res.status(400).json({
@@ -75,7 +76,7 @@ const submitAssignment = async (req, res) => {
             assignment.answer
         );
 
-        // Create submission
+        // Create submission with NO GRADE (will be added during grading)
         const submission = new Submission({
             assignment: assignmentId,
             student: student._id,
@@ -84,7 +85,9 @@ const submitAssignment = async (req, res) => {
             submittedAt: new Date(),
             passedPlagiarismCheck: plagiarismResult.passed,
             passedAssignmentCheck: answerKeyResult.passed,
-            verifiedOwnership: false
+            verifiedOwnership: false,
+            grade: null, // FIXED: Don't set grade on submission
+            feedback: null // FIXED: No feedback yet
         });
 
         // Submit to blockchain if student has wallet
@@ -114,9 +117,9 @@ const submitAssignment = async (req, res) => {
         assignment.submissions.push(submission._id);
         await assignment.save();
 
-        // Award points for submission
+        // Award ONLY submission points (not graded points yet)
         const isFirst = (await Submission.countDocuments({ student: student._id })) === 1;
-        await awardPointsForSubmission(student._id, 0, isEarly, isFirst);
+        const bonusPoints = await awardPointsForSubmission(student._id, 0, isEarly, isFirst);
 
         // Generate plagiarism report
         const plagiarismReport = plagiarismService.generateReport(plagiarismResult);
@@ -132,7 +135,9 @@ const submitAssignment = async (req, res) => {
                 passedPlagiarismCheck: submission.passedPlagiarismCheck,
                 passedAssignmentCheck: submission.passedAssignmentCheck,
                 verifiedOwnership: submission.verifiedOwnership,
-                blockchainTxId: blockchainTxId
+                blockchainTxId: blockchainTxId,
+                grade: null, // FIXED: Show that grade is not yet assigned
+                feedback: null
             },
             plagiarismCheck: plagiarismReport,
             answerKeyMatch: {
@@ -141,8 +146,10 @@ const submitAssignment = async (req, res) => {
                 keywordMatch: `${(answerKeyResult.keywordMatchPercentage * 100).toFixed(2)}%`
             },
             bonusPoints: {
+                submissionPoints: bonusPoints.points,
                 earlySubmission: isEarly,
-                firstSubmission: isFirst
+                firstSubmission: isFirst,
+                totalStudentPoints: bonusPoints.totalPoints
             }
         });
     } catch (error) {
@@ -195,6 +202,7 @@ const getSubmissions = async (req, res) => {
                 studentEmail: sub.student?.user?.email,
                 submittedAt: sub.submittedAt,
                 grade: sub.grade,
+                feedback: sub.feedback, // ADDED
                 passedPlagiarismCheck: sub.passedPlagiarismCheck,
                 passedAssignmentCheck: sub.passedAssignmentCheck,
                 verifiedOwnership: sub.verifiedOwnership,
@@ -243,6 +251,7 @@ const getMySubmission = async (req, res) => {
                 fileUrl: submission.fileUrl,
                 submittedAt: submission.submittedAt,
                 grade: submission.grade,
+                feedback: submission.feedback, // ADDED
                 passedPlagiarismCheck: submission.passedPlagiarismCheck,
                 passedAssignmentCheck: submission.passedAssignmentCheck,
                 verifiedOwnership: submission.verifiedOwnership,
@@ -259,12 +268,13 @@ const getMySubmission = async (req, res) => {
     }
 };
 
-// Grade assignment (instructor/admin)
+// Grade assignment (instructor/admin) - FIXED VERSION
 const gradeAssignment = async (req, res) => {
     try {
         const { submissionId } = req.params;
         const { grade, feedback } = req.body;
 
+        // Validate grade
         if (grade === undefined || grade === null) {
             return res.status(400).json({
                 success: false,
@@ -279,6 +289,7 @@ const gradeAssignment = async (req, res) => {
             });
         }
 
+        // Fetch submission with all required data
         const submission = await Submission.findById(submissionId)
             .populate({
                 path: 'student',
@@ -293,18 +304,26 @@ const gradeAssignment = async (req, res) => {
             });
         }
 
-        // Grade on blockchain if applicable
-        let blockchainTxId = null;
+        // Check submission hasn't been graded already
+        if (submission.grade !== null && submission.grade !== undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Submission has already been graded. Cannot re-grade.'
+            });
+        }
+
         const student = submission.student;
         const assignment = submission.assignment;
 
+        // Grade on blockchain if applicable
+        let blockchainTxId = null;
         if (student.user.solanaWallet && assignment.course) {
             try {
                 const blockchainResult = await solanaService.gradeAssignment(
                     student.user.solanaWallet,
                     assignment.course.toString(),
                     grade,
-                    req.user.id // instructor wallet
+                    req.user.id
                 );
                 
                 blockchainTxId = blockchainResult.txId;
@@ -315,18 +334,29 @@ const gradeAssignment = async (req, res) => {
             }
         }
 
-        // Update submission
+        // FIXED: Now update submission with ACTUAL GRADE and feedback
         submission.grade = grade;
+        submission.feedback = feedback || null; // FIXED: Store feedback
+        
         if (blockchainTxId) {
             submission.txId = blockchainTxId;
         }
+        
         await submission.save();
 
-        // Award points based on grade
+        // FIXED: NOW award points based on ACTUAL GRADE (not 0)
         const wasEarly = new Date(submission.submittedAt) < new Date(assignment.dueDate);
-        await awardPointsForSubmission(student._id, grade, wasEarly, false);
+        const pointsAwarded = await awardPointsForSubmission(
+            student._id,
+            grade, // FIXED: Pass actual grade, not 0
+            wasEarly,
+            false
+        );
 
-        // Send notification email
+        // Refresh student to get updated points
+        const updatedStudent = await Student.findById(student._id);
+
+        // Send notification email with grade and feedback
         await sendEmail({
             to: student.user.email,
             subject: 'Assignment Graded',
@@ -334,11 +364,12 @@ const gradeAssignment = async (req, res) => {
             data: {
                 name: student.user.fullName,
                 courseName: assignment.title,
-                result: `${grade}%`
+                result: `${grade}%`,
+                feedback: feedback || 'No additional feedback'
             }
         });
 
-        logger.info(`Assignment graded: ${submissionId}, Grade: ${grade}`);
+        logger.info(`Assignment graded: ${submissionId}, Grade: ${grade}, Points awarded: ${pointsAwarded.points}`);
 
         res.status(200).json({
             success: true,
@@ -346,8 +377,11 @@ const gradeAssignment = async (req, res) => {
             submission: {
                 id: submission._id,
                 grade: submission.grade,
+                feedback: submission.feedback, // ADDED
                 blockchainTxId: blockchainTxId,
-                studentPoints: student.points
+                pointsAwarded: pointsAwarded.points, // ADDED: Show points awarded
+                studentTotalPoints: updatedStudent.points,
+                studentBadges: updatedStudent.badges
             }
         });
     } catch (error) {

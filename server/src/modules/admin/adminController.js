@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const Student = require('../students/studentModel');
 const Admin = require('./adminModel');
+const blacklistManager = require('../../utils/tokenBlacklistHybrid');
 
 const getAllUsers = async (req, res) => {
     try {
@@ -37,10 +38,13 @@ const removeUser = async (req, res) => {
     try {
         const { userId } = req.body;
         
+        // Revoke all tokens before removing user
+        await blacklistManager.revokeUserTokens(userId, 'admin_revoke');
+
         await User.findByIdAndDelete(userId);
         await Student.deleteOne({ user: userId });
         
-        res.status(200).json({ success: true, message: 'User removed' });
+        res.status(200).json({ success: true, message: 'User removed and tokens revoked' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -51,13 +55,17 @@ const getAdminStats = async (req, res) => {
         const totalUsers = await User.countDocuments();
         const totalStudents = await Student.countDocuments();
         const totalAdmins = await Admin.countDocuments();
+
+        // Get blacklist stats
+        const blacklistStats = blacklistManager.getStats();
         
         res.status(200).json({
             success: true,
             stats: {
                 totalUsers,
                 totalStudents,
-                totalAdmins
+                totalAdmins,
+                tokenBlacklist: blacklistStats
             }
         });
     } catch (error) {

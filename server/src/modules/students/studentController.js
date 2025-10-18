@@ -1,6 +1,7 @@
 const Student = require('./studentModel');
 const User = require('../models/userModel');
 const Cohort = require('../cohorts/cohortModel');
+const { validateSolanaAddress } = require('../../utils/solanaValidator');
 
 const getStudent = async (req, res) => {
     try {
@@ -20,6 +21,9 @@ const getStudent = async (req, res) => {
 const updateStudent = async (req, res) => {
     try {
         const { solanaWallet } = req.body;
+        if (!validateSolanaAddress(solanaWallet)) {
+            return res.status(400).json({ success: false, message: "Invalid Solana wallet address" });
+        }
         const student = await User.findById(req.user.id);
         if(!student){
             return res.status(404).json({ success: false, message: "Student not found"})

@@ -5,11 +5,13 @@ const submissionSchema = new mongoose.Schema({
     student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
     content: String,
     fileUrl: String,
-    txId: String, // Blockchain transaction ID
+    txId: String,
     passedPlagiarismCheck: { type: Boolean, default: false },
     passedAssignmentCheck: { type: Boolean, default: false },
-    verifiedOwnership: { type: Boolean, default: false }, // Blockchain-backed?
+    verifiedOwnership: { type: Boolean, default: false },
     submittedAt: { type: Date, default: Date.now },
+    grade: { type: Number, default: null, min: 0, max: 100 },
+    feedback: { type: String, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Submission', submissionSchema);

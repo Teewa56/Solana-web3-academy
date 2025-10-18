@@ -22,7 +22,7 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // Check if student is enrolled in the course's cohort
+        // FIX: Verify student is enrolled in course's cohort
         if (!student.cohort || student.cohort._id.toString() !== course.cohort._id.toString()) {
             return res.status(403).json({ 
                 success: false, 
@@ -30,21 +30,19 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // Get all submissions for this course
+        // FIX: Verify student has completed course (graded assignments)
         const submissions = await Submission.find({
             student: student._id,
-            course: courseId,
-            passedAssignmentCheck: true
+            assignment: { $in: await Assignment.find({ course: courseId }).select('_id') }
         });
 
         if (submissions.length === 0) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'No completed assignments found for this course' 
+                message: 'No graded assignments found for this course' 
             });
         }
 
-        // Calculate average grade
         const grades = submissions
             .filter(s => s.grade !== null && s.grade !== undefined)
             .map(s => s.grade);
@@ -52,13 +50,13 @@ const generateCertificate = async (req, res) => {
         if (grades.length === 0) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'No graded assignments found' 
+                message: 'Not all assignments have been graded' 
             });
         }
 
         const averageGrade = Math.round(grades.reduce((a, b) => a + b, 0) / grades.length);
 
-        // Check minimum passing grade (70%)
+        // FIX: Enforce minimum passing grade (70%)
         if (averageGrade < 70) {
             return res.status(400).json({ 
                 success: false, 
@@ -66,7 +64,7 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // Check if certificate already exists
+        // FIX: Check certificate not already issued
         const existingCert = student.certificateMints.find(
             cert => cert.course.toString() === courseId
         );
@@ -74,8 +72,7 @@ const generateCertificate = async (req, res) => {
         if (existingCert) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Certificate already issued for this course',
-                certificate: existingCert
+                message: 'Certificate already issued for this course'
             });
         }
 
@@ -87,7 +84,7 @@ const generateCertificate = async (req, res) => {
             grade: averageGrade,
             completionDate: new Date().toISOString(),
             certificateId: `CERT-${student._id}-${courseId}`,
-            issuer: 'Web3 Academy',
+            issuer: 'RAY Academy',
             blockchain: 'Solana'
         };
         

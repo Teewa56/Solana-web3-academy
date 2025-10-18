@@ -335,8 +335,6 @@ pub struct RoleAccount {
 - **CORS**: Configurable cross-origin resource sharing
 - **Rate Limiting**: 100 requests per 15 minutes per IP
 - **Input Sanitization**: 
-  - `express-mongo-sanitize`: Prevents NoSQL injection
-  - `xss-clean`: Prevents XSS attacks
   - `hpp`: Prevents HTTP parameter pollution
 - **JWT Authentication**: Access & refresh token strategy
 - **Password Hashing**: bcrypt with configurable salt rounds
