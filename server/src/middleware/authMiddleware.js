@@ -3,9 +3,9 @@ const { access_token_secret } = require('../config/env');
 
 const authMiddleware = (req, res, next) => {
     const path = req.path;
-    const prefix = ['/api/v1/auth', '/api/v1/health'];
+    const prefix = '/api/v1/auth';
     
-    if (prefix.some(p => path.startsWith(p))) {
+    if (path == '/api/v1/health' || path.startsWith(prefix)) {
         return next();
     }
     

@@ -1,10 +1,7 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
@@ -29,19 +26,30 @@ const uploadRoutes = require('./src/modules/routes/uploadRoutes');
 const app = express();
 
 app.use(helmet());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
     origin: production_enviroment === 'production' ? cors_origin_prod : cors_origin_dev,
     credentials: true,
 }));
 app.use(morgan('combined'));
-app.use(mongoSanitize());
-app.use(xss());
 app.use(hpp());
 app.use(compression());
 app.use(rateLimiter);
+
+app.get('/api/v1/health', (req, res) => {
+    res.json({ success: true, message: 'Server is healthy' });
+});
+
+app.get('/api/v1', (req, res) => {
+    res.send('This is the backend for solana web3 academy');
+});
+
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
+
 app.use(authMiddleware);
 
 app.use('/api/v1/auth', authRoutes);
@@ -59,10 +67,6 @@ app.use('/api/v1/upload', uploadRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
-});
-
-app.get('/api/v1/health', (req, res) => {
-    res.json({ success: true, message: 'Server is healthy' });
 });
 
 app.use(errorMiddleware);
