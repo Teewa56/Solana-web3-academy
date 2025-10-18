@@ -8,7 +8,7 @@ const {
     getEnrollmentStats
 } = require('../controllers/enrollementController');
 const { requireAdmin } = require('../../middleware/roleCheck');
-const validator = require('../../middleware/validator');
+const { validator } = require('../../middleware/validator');
 const Joi = require('joi');
 
 const router = express.Router();

@@ -46,6 +46,84 @@ const register = async (req, res) => {
     }
 };
 
+const resendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email || typeof email !== 'string') {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required'
+            });
+        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'No account found with this email. Please register first.'
+            });
+        }
+        if (user.isEmailVerified) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is already verified. Please login.'
+            });
+        }
+        const newOTP = generateOTP();
+        const otpExpiry = Date.now() + (10 * 60 * 1000); // 10 minutes
+        user.otp = newOTP;
+        user.otpExpires = otpExpiry;
+
+        try {
+            await user.save();
+            logger.info(`New OTP generated for user: ${email}`);
+        } catch (dbError) {
+            logger.error('Error saving OTP to database:', dbError);
+            return res.status(500).json({
+                success: false,
+                message: 'Error processing request. Please try again.'
+            });
+        }
+        try {
+            await sendEmail({
+                to: email,
+                subject: 'Your New OTP - Web3 Academy (Expires in 10 minutes)',
+                template: 'otpEmail',
+                data: { otp: newOTP }
+            });
+
+            logger.info(`OTP email sent successfully to: ${email}`);
+
+            res.status(200).json({
+                success: true,
+                message: 'New OTP sent to your email. Please check your inbox.',
+                data: {
+                    email,
+                    expiresIn: '10 minutes'
+                }
+            });
+        } catch (emailError) {
+            logger.error('Error sending OTP email:', emailError);
+            user.otp = null;
+            user.otpExpires = null;
+            await user.save();
+
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to send OTP email. Please try again later.',
+                error: process.env.NODE_ENV === 'development' ? emailError.message : undefined
+            });
+        }
+    } catch (error) {
+        logger.error('Resend OTP error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error. Please try again.'
+        });
+    }
+};
+
+
 const verifyEmail = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -310,6 +388,7 @@ function parseTokenExpiry(expiryStr) {
 
 module.exports = {
     register,
+    resendOTP,
     verifyEmail,
     login,
     logout,
