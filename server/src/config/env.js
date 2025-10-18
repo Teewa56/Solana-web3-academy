@@ -12,7 +12,7 @@ const env = {
     salt_rounds: process.env.SALT_ROUNDS,
     cors_origin_dev: process.env.CORS_ORIGIN_LOCAL,
     cors_origin_prod: process.env.CORS_ORIGIN_PROD,
-    email: process.env.EMAIL,
+    email: process.env.EMAIL_USER,
     email_password: process.env.EMAIL_PASSWORD,
     smtp_host: process.env.EMAIL_HOST,
     contract_program_id: process.env.CONTRACT_PROGRAM_ID

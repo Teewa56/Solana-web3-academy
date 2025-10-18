@@ -11,11 +11,9 @@ const register = async (req, res) => {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'Email already registered' });
-        }
-        
+        }        
         const hashedPassword = await hashPassword(password);
         const otp = generateOTP();
-        
         const user = new User({
             fullName,
             email,
@@ -24,18 +22,20 @@ const register = async (req, res) => {
             otp,
             otpExpires: Date.now() + (10 * 60 * 1000)
         });
-        
+        try{
+            await sendEmail({
+                to: email,
+                subject: 'Verify Your Email, OTP expires in 10 minutes',
+                template: 'otpEmail',
+                data: { otp }
+            });    
+        }catch(e){
+            return res.status(400).json({success: false, message: e.message})
+        }
         await user.save();
-        
-        await sendEmail({
-            to: email,
-            subject: 'Verify Your Email',
-            template: 'otpEmail',
-            data: { otp }
-        });
-        
         res.status(201).json({ success: true, message: 'User registered. Check email for OTP.' });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -44,7 +44,7 @@ const verifyEmail = async (req, res) => {
     try {
         const { email, otp } = req.body;
         
-        const userData = User.findOne({email});
+        const userData = await User.findOne({ email });
         
         if (!userData) {
             return res.status(400).json({ 
@@ -60,7 +60,7 @@ const verifyEmail = async (req, res) => {
                 message: 'OTP expired. Please register again.' 
             });
         }
-        
+        console.log(userData.otp, otp);
         if (!verifyOTP(otp, userData.otp)) {
             return res.status(400).json({ 
                 success: false, 
@@ -105,6 +105,7 @@ const verifyEmail = async (req, res) => {
             success: true,
             message: 'Email verified successfully',
             accessToken,
+            refreshToken,
             userData: {
                 id: userData._id,
                 fullName: userData.fullName,
@@ -121,7 +122,7 @@ const resendOTP = async (req, res) => {
     try {
         const { email } = req.body;
         
-        const userData = User.findOne(email);
+        const userData = await User.findOne({email});
         
         if (!userData) {
             return res.status(400).json({ 

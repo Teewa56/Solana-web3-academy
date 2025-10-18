@@ -17,7 +17,7 @@ const sendEmail = async ({ to, subject, template, data }) => {
     const html = await ejs.renderFile(path.join(__dirname, `../templates/${template}.ejs`), data);
 
     return transporter.sendMail({
-        from: `"Gideon from Web3 Academy <${email}>`,
+        from: `"Gideon from Web3 Academy" <${email}>`,
         to,
         subject,
         html,

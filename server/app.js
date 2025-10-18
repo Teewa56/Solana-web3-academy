@@ -46,10 +46,6 @@ app.get('/api/v1', (req, res) => {
     res.send('This is the backend for solana web3 academy');
 });
 
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-});
-
 app.use(authMiddleware);
 
 app.use('/api/v1/auth', authRoutes);
