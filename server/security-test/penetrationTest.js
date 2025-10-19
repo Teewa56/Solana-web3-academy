@@ -3,7 +3,7 @@ const axios = require('axios');
 const testNoSQLInjection = async () => {
     const payload = { "$ne": null };
     try {
-        const response = await axios.post('http://localhost:3000/api/v1/login', {
+        const response = await axios.post('http://localhost:5000/api/v1/login', {
             username: payload,
             password: 'password'
         });
@@ -22,7 +22,7 @@ const testNoSQLInjection = async () => {
 const testXSS = async () => {
     const payload = '<script>alert("XSS")</script>';
     try {
-        const response = await axios.post('http://localhost:3000/api/v1/login', {
+        const response = await axios.post('http://localhost:5000/api/v1/login', {
             comment: payload
         });
         if (response.data.comment.includes(payload)) {
