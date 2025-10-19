@@ -4,3 +4,5 @@ dist
 combined.log
 error.log
 package-lock.json
+scripts/
+postman-collection.json

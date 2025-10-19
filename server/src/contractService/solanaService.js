@@ -1,6 +1,7 @@
 const { Connection, PublicKey, Keypair, SystemProgram } = require('@solana/web3.js');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const logger = require('../utils/logger');
 
 class SolanaService {
@@ -12,33 +13,12 @@ class SolanaService {
 
     async initialize() {
         try {
-            await this.connectWallet();
             await this.setupConnection();
-            
-            logger.info('Solana service initialized successfully');
+            await this.loadAndDecryptWallet();
+            logger.info('✅ Solana service initialized for mainnet');
             return true;
         } catch (error) {
             logger.error('Failed to initialize Solana service:', error);
-            throw error;
-        }
-    }
-
-    async connectWallet() {
-        try {
-            const walletPath = process.env.WALLET_PATH || path.join(process.env.HOME, '.config/solana/id.json');
-            
-            if (!fs.existsSync(walletPath)) {
-                throw new Error(`Wallet file not found at: ${walletPath}`);
-            }
-            
-            const walletData = JSON.parse(fs.readFileSync(walletPath, 'utf-8'));
-            this.wallet = Keypair.fromSecretKey(Buffer.from(walletData));
-
-            logger.info(`Using wallet: ${this.wallet.publicKey.toBase58()}`);
-            return this.wallet;
-            
-        } catch (error) {
-            logger.error('Failed to connect wallet:', error);
             throw error;
         }
     }
@@ -47,19 +27,62 @@ class SolanaService {
         try {
             const rpcUrl = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
             this.connection = new Connection(rpcUrl, 'confirmed');
-            logger.info(`Connected to Solana: ${rpcUrl}`);
+            logger.info(`✅ Connected to Solana: ${rpcUrl}`);
 
             const programIdStr = process.env.CONTRACT_PROGRAM_ID;
             if (!programIdStr) {
-                throw new Error('CONTRACT_PROGRAM_ID environment variable is not set');
+                throw new Error('CONTRACT_PROGRAM_ID environment variable not set');
             }
 
             this.programId = new PublicKey(programIdStr);
-            logger.info(`Program ID: ${this.programId.toBase58()}`);
-            
+            logger.info(`✅ Program ID: ${this.programId.toBase58()}`);
         } catch (error) {
             logger.error('Failed to setup connection:', error);
             throw error;
+        }
+    }
+
+    async loadAndDecryptWallet() {
+        try {
+            const encryptedKey = process.env.SOLANA_SECRET_KEY;
+            const encryptionKey = process.env.ENCRYPTION_KEY;
+
+            if (!encryptedKey || !encryptionKey) {
+                throw new Error('SOLANA_SECRET_KEY or ENCRYPTION_KEY not configured');
+            }
+
+            // Decrypt the wallet
+            const decryptedSecretKey = this.decryptSecretKey(encryptedKey, encryptionKey);
+            
+            // Convert string back to array format
+            const secretKeyArray = decryptedSecretKey.split(',').map(Number);
+            
+            // Create keypair from decrypted key
+            this.wallet = Keypair.fromSecretKey(Buffer.from(secretKeyArray));
+
+            logger.info(`✅ Wallet loaded: ${this.wallet.publicKey.toBase58()}`);
+        } catch (error) {
+            logger.error('Failed to load and decrypt wallet:', error);
+            throw error;
+        }
+    }
+
+    decryptSecretKey(encryptedData, encryptionKey) {
+        try {
+            const algorithm = 'aes-256-cbc';
+            const key = Buffer.from(encryptionKey, 'hex');
+            const parts = encryptedData.split(':');
+            const iv = Buffer.from(parts[0], 'hex');
+            const encrypted = Buffer.from(parts[1], 'hex');
+
+            const decipher = crypto.createDecipheriv(algorithm, key, iv);
+            let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+            decrypted += decipher.final('utf8');
+
+            return decrypted;
+        } catch (error) {
+            logger.error('Failed to decrypt wallet:', error);
+            throw new Error('Invalid encryption key or corrupted wallet data');
         }
     }
 
@@ -365,6 +388,9 @@ class SolanaService {
 
     async mintCertificate(studentPubkey, coursePubkey, metadata) {
         try {
+            if (!this.wallet) {
+                throw new Error('Wallet not loaded');
+            }
             logger.info(`Preparing certificate mint for student: ${studentPubkey}`);
             
             return {
@@ -467,6 +493,9 @@ class SolanaService {
     // Get wallet balance (RPC call)
     async getWalletBalance() {
         try {
+            if (!this.wallet) {
+                throw new Error('Wallet not loaded');
+            }
             const balance = await this.connection.getBalance(this.wallet.publicKey);
             logger.info(`Wallet balance: ${balance / 1e9} SOL`);
             
