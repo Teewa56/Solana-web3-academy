@@ -12,7 +12,7 @@ const register = async (req, res) => {
         
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ success: false, message: 'Email already registered' });
+            return res.status(400).json({ success: false, message: 'Email already registered. Please login or use resend-otp' });
         }
 
         const hashedPassword = await hashPassword(password);
@@ -39,7 +39,14 @@ const register = async (req, res) => {
         }
 
         await user.save();
-        res.status(201).json({ success: true, message: 'User registered. Check email for OTP.' });
+        res.status(201).json({ 
+            success: true, 
+            message: 'User registered. Check email for OTP.' ,
+            data: {
+                email,
+                expiresIn: "10 minutes"
+            }
+        });
     } catch (error) {
         logger.error('Register error:', error);
         res.status(500).json({ success: false, message: error.message });
@@ -326,7 +333,7 @@ const forgotPassword = async (req, res) => {
             data: { resetToken }
         });
 
-        res.status(200).json({ success: true, message: 'Reset link sent to email' });
+        res.status(200).json({ success: true, message: 'Reset otp sent to email' });
     } catch (error) {
         logger.error('Forgot password error:', error);
         res.status(500).json({ success: false, message: error.message });
