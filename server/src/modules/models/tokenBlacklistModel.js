@@ -36,6 +36,10 @@ const tokenBlacklistSchema = new mongoose.Schema({
     userAgent: String
 }, { timestamps: true });
 
+//Creates TTL index to auto-delete expired tokens after 30 days
+tokenBlacklistSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 2592000 });
+
+//Compound index for faster queries
 tokenBlacklistSchema.index({ token: 1, expiresAt: 1 });
 
 module.exports = mongoose.model('TokenBlacklist', tokenBlacklistSchema);

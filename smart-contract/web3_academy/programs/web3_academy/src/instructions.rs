@@ -16,7 +16,11 @@ pub struct CreateCohort<'info> {
         payer = authority,
         space = 8 + CohortAccount::INIT_SPACE,
         seeds = [b"cohort", name.as_bytes()],
-        bump
+        bump,
+        constraint = cohort.key() == Pubkey::find_program_address(
+            &[b"cohort", name.as_bytes()],
+            &crate::ID
+        ).0 @ CustomError::InvalidRole
     )]
     pub cohort: Account<'info, CohortAccount>,
     
@@ -122,8 +126,16 @@ pub struct SubmitAssignment<'info> {
         init,
         payer = student,
         space = 8 + AssignmentSubmissionAccount::INIT_SPACE,
-        seeds = [b"submission", student.key().as_ref(), course.key().as_ref()],
-        bump
+        seeds = [
+            b"submission",
+            student.key().as_ref(),
+            course.key().as_ref()
+        ],
+        bump,
+        constraint = submission.key() == Pubkey::find_program_address(
+            &[b"submission", student.key().as_ref(), course.key().as_ref()],
+            &crate::ID
+        ).0 @ CustomError::InvalidRole
     )]
     pub submission: Account<'info, AssignmentSubmissionAccount>,
     

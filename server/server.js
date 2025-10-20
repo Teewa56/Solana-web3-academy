@@ -11,6 +11,13 @@ const initializeServer = async () => {
     try {
         await connectDB();
         logger.info('✅ Database connected successfully');
+        const TokenBlacklist = require('./src/modules/models/tokenBlacklistModel');
+        const indexes = await TokenBlacklist.collection.getIndexes();
+        if (!indexes['expiresAt_1']) {
+            logger.warn('⚠️  TTL index missing. Creating...');
+            await TokenBlacklist.collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 2592000 });
+        }
+        logger.info('✅ Indexes verified');
         try {
             await solanaService.initialize();
             logger.info('✅ Solana service initialized successfully');

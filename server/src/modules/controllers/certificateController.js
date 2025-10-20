@@ -4,8 +4,8 @@ const Submission = require('../models/submissionModel');
 const solanaService = require('../../contractService/solanaService');
 const sendEmail = require('../../utils/emailService');
 const logger = require('../../utils/logger');
+const mongoose = require('mongoose');
 
-// Generate certificate metadata
 const generateCertificate = async (req, res) => {
     try {
         const { courseId } = req.body;
@@ -22,7 +22,7 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // FIX: Verify student is enrolled in course's cohort
+        // Verify student is in cohort
         if (!student.cohort || student.cohort._id.toString() !== course.cohort._id.toString()) {
             return res.status(403).json({ 
                 success: false, 
@@ -30,33 +30,74 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // FIX: Verify student has completed course (graded assignments)
-        const submissions = await Submission.find({
+        // ADD THIS - Verify student actually submitted
+        const studentSubmissions = await Submission.find({
             student: student._id,
             assignment: { $in: await Assignment.find({ course: courseId }).select('_id') }
         });
 
-        if (submissions.length === 0) {
+        if (studentSubmissions.length === 0) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'No graded assignments found for this course' 
+                message: 'No submissions found. You must submit assignments to earn a certificate.' 
             });
         }
 
-        const grades = submissions
-            .filter(s => s.grade !== null && s.grade !== undefined)
-            .map(s => s.grade);
-
-        if (grades.length === 0) {
+        // ADD THIS - Verify student completed course timeline
+        const now = new Date();
+        if (course.cohort.endDate && now < new Date(course.cohort.endDate)) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Not all assignments have been graded' 
+                message: `Course not yet completed. Completion date: ${course.cohort.endDate.toDateString()}`
             });
         }
 
+        // ADD THIS - Verify all assignments submitted (not just graded)
+        const allCourseAssignments = await Assignment.find({ course: courseId });
+        const submissionAssignmentIds = new Set(
+            studentSubmissions.map(s => s.assignment.toString())
+        );
+
+        const missingSubmissions = allCourseAssignments.filter(
+            a => !submissionAssignmentIds.has(a._id.toString())
+        );
+
+        if (missingSubmissions.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `${missingSubmissions.length} assignment(s) not submitted`
+            });
+        }
+
+        // Get grades with full verification
+        const submissions = await Submission.find({
+            assignment: { $in: allCourseAssignments.map(a => a._id) },
+            student: student._id
+        }).populate('assignment');
+
+        const gradesMap = new Map();
+        submissions.forEach(sub => {
+            if (sub.grade !== null && sub.grade !== undefined) {
+                gradesMap.set(sub.assignment._id.toString(), sub.grade);
+            }
+        });
+
+        // Verify all assignments graded
+        const ungradedAssignments = allCourseAssignments.filter(
+            a => !gradesMap.has(a._id.toString())
+        );
+
+        if (ungradedAssignments.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `${ungradedAssignments.length} assignments not yet graded` 
+            });
+        }
+
+        const grades = Array.from(gradesMap.values());
         const averageGrade = Math.round(grades.reduce((a, b) => a + b, 0) / grades.length);
 
-        // FIX: Enforce minimum passing grade (70%)
+        // Enforce minimum passing grade
         if (averageGrade < 70) {
             return res.status(400).json({ 
                 success: false, 
@@ -64,9 +105,9 @@ const generateCertificate = async (req, res) => {
             });
         }
 
-        // FIX: Check certificate not already issued
+        // Check certificate not already issued
         const existingCert = student.certificateMints.find(
-            cert => cert.course.toString() === courseId
+            cert => cert.course.toString() === courseId && cert.txId
         );
 
         if (existingCert) {
@@ -84,7 +125,7 @@ const generateCertificate = async (req, res) => {
             grade: averageGrade,
             completionDate: new Date().toISOString(),
             certificateId: `CERT-${student._id}-${courseId}`,
-            issuer: 'RAY Academy',
+            issuer: 'Web3 Academy',
             blockchain: 'Solana'
         };
         
@@ -99,7 +140,6 @@ const generateCertificate = async (req, res) => {
     }
 };
 
-// Mint NFT certificate on Solana
 const mintNFT = async (req, res) => {
     try {
         const { courseId, ipfsUrl, certificateData } = req.body;
@@ -121,7 +161,27 @@ const mintNFT = async (req, res) => {
             });
         }
 
-        // Check if student has Solana wallet
+        // ADD THIS - Check if already minting
+        const existingCert = student.certificateMints.find(
+            cert => cert.course.toString() === courseId
+        );
+
+        if (existingCert) {
+            if (existingCert.txId) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Certificate already minted',
+                    nftMint: existingCert.nftMint
+                });
+            } else {
+                // In progress, wait
+                return res.status(409).json({
+                    success: false,
+                    message: 'Certificate minting in progress'
+                });
+            }
+        }
+
         if (!student.user.solanaWallet) {
             return res.status(400).json({ 
                 success: false, 
@@ -129,89 +189,85 @@ const mintNFT = async (req, res) => {
             });
         }
 
-        // Check if already minted
-        const existingCert = student.certificateMints.find(
-            cert => cert.course.toString() === courseId
-        );
-
-        if (existingCert) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Certificate already minted',
-                nftMint: existingCert.nftMint
-            });
-        }
-
-        // Prepare NFT metadata
-        const metadata = {
-            name: `${course.title} Certificate`,
-            symbol: 'W3ACERT',
-            uri: ipfsUrl,
-            sellerFeeBasisPoints: 0,
-            creators: [
-                {
-                    address: solanaService.wallet.publicKey.toBase58(),
-                    verified: true,
-                    share: 100
-                }
-            ]
-        };
-
-        // Mint NFT on Solana
-        logger.info(`Minting certificate NFT for student: ${student.user.solanaWallet}`);
-        
-        const mintResult = await solanaService.mintCertificate(
-            student.user.solanaWallet,
-            course.contractAddress || courseId,
-            metadata
-        );
-
-        // Save certificate mint info
+        // ADD PENDING ENTRY
         student.certificateMints.push({
             course: courseId,
-            nftMint: mintResult.mintAddress,
-            txId: mintResult.txId,
+            nftMint: null,  // Will be filled after blockchain
+            txId: null,
             mintedAt: new Date(),
-            metadataUri: ipfsUrl
+            metadataUri: null
         });
-
-        // Update student stats
-        student.coursesCompleted += 1;
-        student.points += 100; // Award 100 points for course completion
-        
-        // Award completion badge
-        const badgeName = `${course.title} Master`;
-        if (!student.badges.includes(badgeName)) {
-            student.badges.push(badgeName);
-        }
-
         await student.save();
 
-        // Send certificate email
-        await sendEmail({
-            to: student.user.email,
-            subject: 'Congratulations! Your Certificate is Ready',
-            template: 'certificateTemplate',
-            data: {
-                fullName: student.user.fullName,
-                cohortName: certificateData.cohortName,
-                completionDate: certificateData.completionDate,
-                grade: certificateData.grade,
-                issueDate: new Date().toLocaleDateString()
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+            const mintResult = await solanaService.mintCertificate(
+                student.user.solanaWallet,
+                course.contractAddress || courseId,
+                metadata
+            );
+
+            // Update with actual values
+            const certIndex = student.certificateMints.findIndex(
+                c => c.course.toString() === courseId && !c.txId
+            );
+            
+            if (certIndex !== -1) {
+                student.certificateMints[certIndex].nftMint = mintResult.mintAddress;
+                student.certificateMints[certIndex].txId = mintResult.txId;
+                student.certificateMints[certIndex].metadataUri = ipfsUrl;
             }
-        });
 
-        logger.info(`Certificate minted successfully: ${mintResult.mintAddress}`);
+            student.coursesCompleted += 1;
+            student.points += 100;
+            
+            const badgeName = `${course.title} Master`;
+            if (!student.badges.includes(badgeName)) {
+                student.badges.push(badgeName);
+            }
 
-        res.status(200).json({ 
-            success: true, 
-            message: 'Certificate NFT minted successfully',
-            nftMint: mintResult.mintAddress,
-            txId: mintResult.txId,
-            explorerUrl: `https://explorer.solana.com/tx/${mintResult.txId}?cluster=devnet`,
-            points: student.points,
-            badges: student.badges
-        });
+            await student.save({ session });
+            await session.commitTransaction();
+
+            await sendEmail({
+                to: student.user.email,
+                subject: 'Congratulations! Your Certificate is Ready',
+                template: 'certificateTemplate',
+                data: {
+                    fullName: student.user.fullName,
+                    cohortName: certificateData.cohortName,
+                    completionDate: certificateData.completionDate,
+                    grade: certificateData.grade,
+                    issueDate: new Date().toLocaleDateString()
+                }
+            });
+
+            res.status(200).json({ 
+                success: true, 
+                message: 'Certificate NFT minted successfully',
+                nftMint: mintResult.mintAddress,
+                txId: mintResult.txId,
+                explorerUrl: `https://explorer.solana.com/tx/${mintResult.txId}?cluster=devnet`,
+                points: student.points,
+                badges: student.badges
+            });
+
+        } catch (error) {
+            await session.abortTransaction();
+            
+            // Remove pending entry on failure
+            student.certificateMints = student.certificateMints.filter(
+                c => !(c.course.toString() === courseId && !c.txId)
+            );
+            await student.save();
+            
+            logger.error('Certificate minting failed:', error);
+            res.status(500).json({ success: false, message: error.message });
+        } finally {
+            await session.endSession();
+        }
     } catch (error) {
         logger.error('Error minting NFT:', error);
         res.status(500).json({ success: false, message: error.message });

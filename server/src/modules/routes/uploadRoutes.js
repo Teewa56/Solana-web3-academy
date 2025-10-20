@@ -11,19 +11,19 @@ const {
     uploadSingle,
     uploadCourseMedia: uploadCourseMediaMiddleware,
     uploadAssignment: uploadAssignmentMiddleware,
-    handleUploadError
+    handleUploadError,
+    validateMagicBytes
 } = require('../../middleware/uploadMiddleware');
 const { requireAdmin } = require('../../middleware/roleCheck');
 
 const router = express.Router();
 
-// Upload routes
-router.post('/file', uploadSingle, handleUploadError, uploadFileToIPFS);
-router.post('/course-media', uploadCourseMediaMiddleware, handleUploadError, uploadCourseMedia);
+// ADD validateMagicBytes to each route
+router.post('/file', uploadSingle, validateMagicBytes, handleUploadError, uploadFileToIPFS);
+router.post('/course-media', uploadCourseMediaMiddleware, validateMagicBytes, handleUploadError, uploadCourseMedia);
 router.post('/certificate-metadata', uploadCertificateMetadata);
-router.post('/assignment', uploadAssignmentMiddleware, handleUploadError, uploadAssignment);
+router.post('/assignment', uploadAssignmentMiddleware, validateMagicBytes, handleUploadError, uploadAssignment);
 
-// Admin routes
 router.get('/pinned-files', requireAdmin, getPinnedFiles);
 router.delete('/unpin/:ipfsHash', requireAdmin, unpinFile);
 

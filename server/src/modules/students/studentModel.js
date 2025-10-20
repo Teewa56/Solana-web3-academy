@@ -17,4 +17,9 @@ const studentSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
+studentSchema.index(
+    { 'certificateMints.course': 1, user: 1 },
+    { unique: true, sparse: true }
+);
+
 module.exports = mongoose.model('Student', studentSchema);

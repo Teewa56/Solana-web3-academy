@@ -3,6 +3,10 @@ const crypto = require('crypto');
 const Submission = require('../modules/models/submissionModel');
 const logger = require('./logger');
 
+async function logCriticalError(type, error) {
+    logger.error(`CRITICAL: ${type}`, error);
+}
+
 class PlagiarismService {
     constructor() {
         // Using Copyleaks API or similar plagiarism detection service
@@ -24,33 +28,45 @@ class PlagiarismService {
         return (longer.length - editDistance) / longer.length;
     }
 
-    // Levenshtein distance algorithm
     levenshteinDistance(str1, str2) {
-        const matrix = [];
-
-        for (let i = 0; i <= str2.length; i++) {
-            matrix[i] = [i];
+        const len1 = str1.length;
+        const len2 = str2.length;
+        
+        // For very long strings, use truncated comparison
+        if (len1 > 5000 || len2 > 5000) {
+            return this.levenshteinDistanceApprox(str1.substring(0, 5000), str2.substring(0, 5000));
         }
-
-        for (let j = 0; j <= str1.length; j++) {
-            matrix[0][j] = j;
+        
+        const prev = new Array(len2 + 1).fill(0);
+        const curr = new Array(len2 + 1).fill(0);
+        
+        for (let j = 0; j <= len2; j++) {
+            prev[j] = j;
         }
-
-        for (let i = 1; i <= str2.length; i++) {
-            for (let j = 1; j <= str1.length; j++) {
-                if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1,
-                        matrix[i][j - 1] + 1,
-                        matrix[i - 1][j] + 1
-                    );
-                }
+        
+        for (let i = 1; i <= len1; i++) {
+            curr[0] = i;
+            for (let j = 1; j <= len2; j++) {
+                const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                curr[j] = Math.min(
+                    curr[j - 1] + 1,
+                    prev[j] + 1,
+                    prev[j - 1] + cost
+                );
             }
+            [prev, curr] = [curr, prev];
         }
+        
+        return prev[len2];
+    }
 
-        return matrix[str2.length][str1.length];
+    levenshteinDistanceApprox(str1, str2) {
+        // Use token-based similarity for large strings
+        const tokens1 = new Set(str1.split(/\s+/));
+        const tokens2 = new Set(str2.split(/\s+/));
+        const intersection = [...tokens1].filter(t => tokens2.has(t)).length;
+        const union = new Set([...tokens1, ...tokens2]).size;
+        return Math.round((1 - intersection / union) * Math.min(str1.length, str2.length));
     }
 
     // Normalize text for comparison
@@ -165,13 +181,15 @@ class PlagiarismService {
             };
         } catch (error) {
             logger.error('Error in external plagiarism check:', error);
-            // Return pass on API error to not block student
+            // Log critical error and alert admin
+            await logCriticalError('plagiarism_api_failure', error);
             return {
-                passed: true,
-                similarity: 0,
+                passed: false,  // Fail safe - don't hide plagiarism issues
+                similarity: 1.0,  // Assume plagiarized
                 sources: [],
                 error: error.message,
-                checkType: 'external_error'
+                checkType: 'external_error',
+                requiresManualReview: true
             };
         }
     }

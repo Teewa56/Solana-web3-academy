@@ -2,14 +2,23 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const logger = require('../utils/logger');
+const credentialEncryptor = require('../utils/credentialEncryption');
 
 class IPFSService {
     constructor() {
-        // Using Pinata for IPFS pinning
-        this.pinataApiKey = process.env.PINATA_API_KEY;
-        this.pinataSecretKey = process.env.PINATA_SECRET_KEY;
-        this.pinataJWT = process.env.PINATA_JWT;
-        this.pinataBaseUrl = 'https://api.pinata.cloud';
+        try {
+            const encryptedKey = process.env.PINATA_API_KEY;
+            const encryptedSecret = process.env.PINATA_SECRET_KEY;
+            const encryptedJwt = process.env.PINATA_JWT;
+
+            this.pinataApiKey = credentialEncryptor.decrypt(encryptedKey);
+            this.pinataSecretKey = credentialEncryptor.decrypt(encryptedSecret);
+            this.pinataJWT = credentialEncryptor.decrypt(encryptedJwt);
+            this.pinataBaseUrl = 'https://api.pinata.cloud';
+        } catch (error) {
+            logger.error('Failed to initialize IPFS service:', error);
+            throw error;
+        }
     }
 
     // Upload file to IPFS via Pinata

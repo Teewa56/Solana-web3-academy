@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const logger = require('../utils/logger');
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -19,9 +20,56 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter
+// Magic bytes for file type verification
+const MAGIC_BYTES = {
+    image: [
+        [0xFF, 0xD8, 0xFF], // JPEG
+        [0x89, 0x50, 0x4E, 0x47], // PNG
+        [0x47, 0x49, 0x46], // GIF
+        [0x52, 0x49, 0x46, 0x46] // WEBP (RIFF)
+    ],
+    video: [
+        [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70], // MP4
+        [0x1A, 0x45, 0xDF, 0xA3] // WebM/MKV
+    ],
+    audio: [
+        [0xFF, 0xFB], // MP3
+        [0x52, 0x49, 0x46, 0x46], // WAV (RIFF)
+        [0x4F, 0x67, 0x67, 0x53] // OGG
+    ],
+    document: [
+        [0x25, 0x50, 0x44, 0x46] // PDF
+    ]
+};
+
+function checkMagicBytes(filePath, fileType) {
+    const buffer = Buffer.alloc(8);
+    try {
+        const fd = fs.openSync(filePath, 'r');
+        fs.readSync(fd, buffer, 0, 8, 0);
+        fs.closeSync(fd);
+
+        const magicSets = MAGIC_BYTES[fileType] || [];
+        
+        for (const magicBytes of magicSets) {
+            let match = true;
+            for (let i = 0; i < magicBytes.length; i++) {
+                if (buffer[i] !== magicBytes[i]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return true;
+        }
+        
+        return false;
+    } catch (error) {
+        logger.error('Magic byte check failed:', error);
+        return false;
+    }
+}
+
 const fileFilter = (req, file, cb) => {
-    // Allowed file types
     const allowedTypes = {
         image: /jpeg|jpg|png|gif|webp/,
         video: /mp4|avi|mkv|mov|webm/,
@@ -31,25 +79,33 @@ const fileFilter = (req, file, cb) => {
     };
 
     const extname = path.extname(file.originalname).toLowerCase().replace('.', '');
-    const mimetype = file.mimetype;
 
     // Check if file type is allowed
-    let isAllowed = false;
-    for (const type in allowedTypes) {
-        if (allowedTypes[type].test(extname)) {
-            isAllowed = true;
+    let fileType = null;
+    for (const [type, regex] of Object.entries(allowedTypes)) {
+        if (regex.test(extname)) {
+            fileType = type;
             break;
         }
     }
 
-    if (isAllowed) {
-        cb(null, true);
-    } else {
+    if (!fileType) {
         cb(new Error('Invalid file type. Only images, videos, audio, documents, and archives are allowed.'));
+        return;
     }
+
+    // Skip magic byte check for archives (compression varies)
+    if (fileType === 'archive') {
+        cb(null, true);
+        return;
+    }
+
+    // Store file type for later validation
+    req.fileType = fileType;
+    cb(null, true);
 };
 
-// Multer configuration
+// Multer configurations
 const upload = multer({
     storage: storage,
     limits: {
@@ -58,23 +114,46 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-// Specific upload configurations
 const uploadSingle = upload.single('file');
-const uploadMultiple = upload.array('files', 10); // Max 10 files
+const uploadMultiple = upload.array('files', 10);
 const uploadFields = upload.fields([
     { name: 'video', maxCount: 1 },
     { name: 'audio', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 }
 ]);
-
-// Assignment submission upload
 const uploadAssignment = upload.single('assignment');
-
-// Course media upload
 const uploadCourseMedia = upload.fields([
     { name: 'video', maxCount: 1 },
     { name: 'audio', maxCount: 1 }
 ]);
+
+// Post-upload validation middleware for magic bytes
+const validateMagicBytes = (req, res, next) => {
+    if (!req.file || !req.fileType) {
+        return next();
+    }
+
+    try {
+        const isValid = checkMagicBytes(req.file.path, req.fileType);
+        
+        if (!isValid) {
+            cleanupFile(req.file.path);
+            return res.status(400).json({
+                success: false,
+                message: 'File content does not match file extension. Possible malicious file.'
+            });
+        }
+        next();
+    } catch (error) {
+        if (req.file) {
+            cleanupFile(req.file.path);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'File validation failed'
+        });
+    }
+};
 
 // Error handling middleware
 const handleUploadError = (err, req, res, next) => {
@@ -114,7 +193,7 @@ const cleanupFile = (filePath) => {
             fs.unlinkSync(filePath);
         }
     } catch (error) {
-        console.error('Error deleting file:', error);
+        logger.error('Error deleting file:', error);
     }
 };
 
@@ -125,6 +204,7 @@ module.exports = {
     uploadAssignment,
     uploadCourseMedia,
     handleUploadError,
+    validateMagicBytes,
     cleanupFile,
     uploadsDir
 };

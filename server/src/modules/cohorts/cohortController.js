@@ -3,6 +3,23 @@ const Cohort = require('./cohortModel');
 const createCohort = async (req, res) => {
     try {
         const { name, description, startDate, endDate } = req.body;
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (end <= start) {
+            return res.status(400).json({
+                success: false,
+                message: 'End date must be after start date'
+            });
+        }
+        
+        if (start < new Date()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Start date cannot be in the past'
+            });
+        }
         
         const cohort = new Cohort({
             name,

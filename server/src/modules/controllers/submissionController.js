@@ -346,11 +346,13 @@ const gradeAssignment = async (req, res) => {
 
         // FIXED: NOW award points based on ACTUAL GRADE (not 0)
         const wasEarly = new Date(submission.submittedAt) < new Date(assignment.dueDate);
+        const previousSubmissions = await Submission.countDocuments({ student: student._id, grade: { $ne: null } });
+        const isFirst = previousSubmissions === 0;
         const pointsAwarded = await awardPointsForSubmission(
             student._id,
-            grade, // FIXED: Pass actual grade, not 0
+            grade,
             wasEarly,
-            false
+            isFirst
         );
 
         // Refresh student to get updated points

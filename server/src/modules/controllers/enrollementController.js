@@ -156,7 +156,15 @@ const enrollInCohort = async (req, res) => {
                 logger.info(`Blockchain enrollment successful: ${blockchainEnrollment.txId}`);
             } catch (blockchainError) {
                 logger.error('Blockchain enrollment failed:', blockchainError);
-                // Continue with off-chain enrollment
+                // If wallet is connected and blockchain fails, reject
+                if (student.user.solanaWallet) {
+                    return res.status(500).json({
+                        success: false,
+                        message: 'Blockchain enrollment failed. Please try again or contact support.',
+                        error: blockchainError.message
+                    });
+                }
+                // Only continue if no wallet was provided
             }
         }
 
