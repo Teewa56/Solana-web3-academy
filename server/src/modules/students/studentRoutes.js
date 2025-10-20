@@ -4,11 +4,11 @@ const {
     updateStudent,
     enrollInCohort
 } = require('./studentController');
-
+const { validator, schemas } = require('../../middleware/validator');
 const router = express.Router();
 
 router.get('/', getStudent);
-router.put('/update-student', updateStudent);
-router.post('/enroll-cohort', enrollInCohort);
+router.put('/update-student', validator(schemas.updateStudent), updateStudent);
+router.post('/enroll-cohort', validator(schemas.enrollCohort), enrollInCohort);
 
 module.exports = router;

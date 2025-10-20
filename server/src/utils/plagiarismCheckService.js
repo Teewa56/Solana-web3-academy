@@ -83,66 +83,70 @@ class PlagiarismService {
         return crypto.createHash('md5').update(text).digest('hex');
     }
 
-    // Check against previous submissions (internal plagiarism check)
-    async checkInternalPlagiarism(content, assignmentId, currentStudentId) {
+    // In checkPlagiarism method, change to:
+    async checkPlagiarism(content, assignmentId, studentId) {
         try {
-            const normalizedContent = this.normalizeText(content);
-            const contentHash = this.calculateHash(normalizedContent);
+            logger.info(`Starting plagiarism check for student ${studentId}, assignment ${assignmentId}`);
 
-            // Get all submissions for this assignment (excluding current student)
-            const previousSubmissions = await Submission.find({
-                assignment: assignmentId,
-                student: { $ne: currentStudentId }
-            }).populate('student', 'user');
+            // ADD TIMEOUT - wait max 30 seconds for both checks
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Plagiarism check timeout')), 30000)
+            );
 
-            const matches = [];
+            // Run both checks in parallel with timeout
+            const checksPromise = Promise.all([
+                this.checkInternalPlagiarism(content, assignmentId, studentId),
+                this.checkExternalPlagiarism(content)
+            ]);
 
-            for (const submission of previousSubmissions) {
-                if (!submission.content) continue;
+            const [internalResult, externalResult] = await Promise.race([
+                checksPromise,
+                timeoutPromise
+            ]);
 
-                const normalizedSubmission = this.normalizeText(submission.content);
-                const submissionHash = this.calculateHash(normalizedSubmission);
+            const overallPassed = internalResult.passed && externalResult.passed;
+            const maxSimilarity = Math.max(internalResult.similarity, externalResult.similarity);
 
-                // Quick check: if hashes match, it's identical
-                if (contentHash === submissionHash) {
-                    matches.push({
-                        studentId: submission.student._id,
-                        similarity: 1.0,
-                        matchType: 'exact'
-                    });
-                    continue;
+            const result = {
+                passed: overallPassed,
+                overallSimilarity: maxSimilarity,
+                internal: internalResult,
+                external: externalResult,
+                timestamp: new Date(),
+                checksPerformed: {
+                    internal: true,
+                    external: externalResult.checkType !== 'external_skipped'
                 }
-
-                // Detailed similarity check
-                const similarity = this.calculateSimilarity(normalizedContent, normalizedSubmission);
-
-                if (similarity >= this.similarityThreshold) {
-                    matches.push({
-                        studentId: submission.student._id,
-                        similarity: similarity,
-                        matchType: 'similar'
-                    });
-                }
-            }
-
-            const isPlagiarized = matches.length > 0;
-            const maxSimilarity = matches.length > 0
-                ? Math.max(...matches.map(m => m.similarity))
-                : 0;
-
-            return {
-                passed: !isPlagiarized,
-                similarity: maxSimilarity,
-                matches: matches,
-                checkType: 'internal'
             };
+
+            logger.info(`Plagiarism check completed. Passed: ${overallPassed}, Similarity: ${maxSimilarity}`);
+
+            return result;
         } catch (error) {
-            logger.error('Error in internal plagiarism check:', error);
+            logger.error('Error in comprehensive plagiarism check:', error);
+            
+            // If timeout, still return conservative result
+            if (error.message.includes('timeout')) {
+                return {
+                    passed: false,
+                    overallSimilarity: 1.0,
+                    internal: { passed: false },
+                    external: { passed: false },
+                    timestamp: new Date(),
+                    error: 'Plagiarism check timed out - marking as potential plagiarism',
+                    requiresManualReview: true,
+                    checksPerformed: {
+                        internal: false,
+                        external: false
+                    }
+                };
+            }
+            
             throw error;
         }
     }
 
-    // Check against external sources using API (if available)
+    // Change checkExternalPlagiarism to retry on failure:
     async checkExternalPlagiarism(content) {
         try {
             if (!this.apiKey) {
@@ -155,73 +159,65 @@ class PlagiarismService {
                 };
             }
 
-            // Example API call to Copyleaks or similar service
-            const response = await axios.post(
-                `${this.apiUrl}/v3/scans/submit`,
-                {
-                    text: content,
-                    properties: {
-                        webhookUrl: `${process.env.BACKEND_URL}/api/v1/webhooks/plagiarism`
-                    }
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.apiKey}`,
-                        'Content-Type': 'application/json'
+            // ADD RETRY LOGIC
+            let retries = 3;
+            let lastError;
+
+            while (retries > 0) {
+                try {
+                    const response = await axios.post(
+                        `${this.apiUrl}/v3/scans/submit`,
+                        {
+                            text: content,
+                            properties: {
+                                webhookUrl: `${process.env.BACKEND_URL}/api/v1/webhooks/plagiarism`
+                            }
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${this.apiKey}`,
+                                'Content-Type': 'application/json'
+                            },
+                            timeout: 10000  // 10 second timeout per request
+                        }
+                    );
+
+                    return {
+                        passed: response.data.score < this.similarityThreshold,
+                        similarity: response.data.score || 0,
+                        sources: response.data.results || [],
+                        scanId: response.data.scanId,
+                        checkType: 'external'
+                    };
+                } catch (error) {
+                    lastError = error;
+                    retries--;
+                    if (retries > 0) {
+                        logger.warn(`External plagiarism check failed, retrying... (${retries} left)`);
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
                     }
                 }
-            );
+            }
 
+            logger.error('External plagiarism check failed after retries:', lastError);
             return {
-                passed: response.data.score < this.similarityThreshold,
-                similarity: response.data.score || 0,
-                sources: response.data.results || [],
-                scanId: response.data.scanId,
-                checkType: 'external'
+                passed: false,  // Fail safe
+                similarity: 1.0,
+                sources: [],
+                error: lastError.message,
+                checkType: 'external_error',
+                requiresManualReview: true
             };
         } catch (error) {
             logger.error('Error in external plagiarism check:', error);
-            // Log critical error and alert admin
-            await logCriticalError('plagiarism_api_failure', error);
             return {
-                passed: false,  // Fail safe - don't hide plagiarism issues
-                similarity: 1.0,  // Assume plagiarized
+                passed: false,
+                similarity: 1.0,
                 sources: [],
                 error: error.message,
                 checkType: 'external_error',
                 requiresManualReview: true
             };
-        }
-    }
-
-    // Comprehensive plagiarism check
-    async checkPlagiarism(content, assignmentId, studentId) {
-        try {
-            logger.info(`Starting plagiarism check for student ${studentId}, assignment ${assignmentId}`);
-
-            // Run both internal and external checks
-            const [internalResult, externalResult] = await Promise.all([
-                this.checkInternalPlagiarism(content, assignmentId, studentId),
-                this.checkExternalPlagiarism(content)
-            ]);
-
-            const overallPassed = internalResult.passed && externalResult.passed;
-            const maxSimilarity = Math.max(internalResult.similarity, externalResult.similarity);
-
-            const result = {
-                passed: overallPassed,
-                overallSimilarity: maxSimilarity,
-                internal: internalResult,
-                external: externalResult,
-                timestamp: new Date()
-            };
-
-            logger.info(`Plagiarism check completed. Passed: ${overallPassed}, Similarity: ${maxSimilarity}`);
-
-            return result;
-        } catch (error) {
-            logger.error('Error in comprehensive plagiarism check:', error);
-            throw error;
         }
     }
 

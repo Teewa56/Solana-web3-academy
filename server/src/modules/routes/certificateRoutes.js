@@ -9,6 +9,7 @@ const {
 const { requireAdmin } = require('../../middleware/roleCheck');
 const { validator } = require('../../middleware/validator');
 const Joi = require('joi');
+const { certificateLimiter } = require('../../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -30,8 +31,8 @@ const issueCertSchema = Joi.object({
 });
 
 // Student routes
-router.post('/generate', validator(generateCertSchema), generateCertificate);
-router.post('/mint-nft', validator(mintNFTSchema), mintNFT);
+router.post('/generate', certificateLimiter, validator(generateCertSchema), generateCertificate);
+router.post('/mint-nft', certificateLimiter, validator(mintNFTSchema), mintNFT);
 router.get('/my-certificates', getUserCertificates);
 
 // Public verification

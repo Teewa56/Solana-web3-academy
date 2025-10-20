@@ -8,11 +8,12 @@ const {
     awardBadge
 } = require('../controllers/gamificationController');
 const { requireAdmin } = require('../../middleware/roleCheck');
+const { leaderboardLimiter } = require('../../middleware/rateLimiter');
 
 const router = express.Router();
 
 // Student routes
-router.get('/my-stats', getStudentStats);
+router.get('/my-stats', leaderboardLimiter, getStudentStats);
 router.get('/leaderboard', getLeaderboard);
 router.get('/badges', getAvailableBadges);
 router.get('/points-breakdown', getPointsBreakdown);

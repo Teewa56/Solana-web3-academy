@@ -89,7 +89,6 @@ const enrollInCourse = async (req, res) => {
     }
 };
 
-// Enroll student in cohort (with blockchain enrollment)
 const enrollInCohort = async (req, res) => {
     try {
         const { cohortId, walletAddress } = req.body;
@@ -110,7 +109,6 @@ const enrollInCohort = async (req, res) => {
             });
         }
 
-        // Check cohort status
         if (cohort.status === 'completed') {
             return res.status(400).json({
                 success: false,
@@ -127,7 +125,18 @@ const enrollInCohort = async (req, res) => {
             });
         }
 
-        // Check if already enrolled
+        if (student.cohort) {
+            const currentCohort = await Cohort.findById(student.cohort);
+            if (currentCohort && currentCohort.status !== 'completed') {
+                return res.status(400).json({
+                    success: false,
+                    message: `Already enrolled in active cohort: "${currentCohort.name}". Complete it before enrolling in another.`,
+                    currentCohortId: student.cohort
+                });
+            }
+        }
+
+        // ADD THIS - Check if already enrolled in THIS cohort
         if (student.cohort && student.cohort.toString() === cohortId) {
             return res.status(400).json({
                 success: false,
@@ -145,7 +154,6 @@ const enrollInCohort = async (req, res) => {
         let blockchainEnrollment = null;
         if (student.user.solanaWallet) {
             try {
-                // Get cohort blockchain address
                 const cohortPubkey = cohort.contractAddress || cohort._id.toString();
                 
                 blockchainEnrollment = await solanaService.enrollStudent(
@@ -156,15 +164,6 @@ const enrollInCohort = async (req, res) => {
                 logger.info(`Blockchain enrollment successful: ${blockchainEnrollment.txId}`);
             } catch (blockchainError) {
                 logger.error('Blockchain enrollment failed:', blockchainError);
-                // If wallet is connected and blockchain fails, reject
-                if (student.user.solanaWallet) {
-                    return res.status(500).json({
-                        success: false,
-                        message: 'Blockchain enrollment failed. Please try again or contact support.',
-                        error: blockchainError.message
-                    });
-                }
-                // Only continue if no wallet was provided
             }
         }
 

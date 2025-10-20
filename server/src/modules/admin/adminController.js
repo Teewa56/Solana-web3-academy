@@ -38,13 +38,33 @@ const removeUser = async (req, res) => {
     try {
         const { userId } = req.body;
         
-        // Revoke all tokens before removing user
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { 
+                isDeleted: true,
+                deletedAt: new Date(),
+                deletedBy: req.user.id,
+                deleteReason: req.body.reason || 'Admin removal'
+            },
+            { new: true }
+        ).select('-password');
+        
         await blacklistManager.revokeUserTokens(userId, 'admin_revoke');
 
-        await User.findByIdAndDelete(userId);
-        await Student.deleteOne({ user: userId });
+        const student = await Student.findOne({ user: userId });
+        if (student) {
+            student.isDeleted = true;
+            student.deletedAt = new Date();
+            await student.save();
+        }
         
-        res.status(200).json({ success: true, message: 'User removed and tokens revoked' });
+        logger.info(`User ${userId} soft deleted by ${req.user.id}`);
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'User removed and tokens revoked',
+            user 
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

@@ -6,7 +6,6 @@ const {
     listAssignmentsByCourse
 } = require('../controllers/assignmentController');
 const { requireAdmin } = require('../../middleware/roleCheck');
-
 const router = express.Router();
 
 router.get('/:id', getAssignment);

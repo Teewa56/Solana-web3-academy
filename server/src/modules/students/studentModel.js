@@ -11,11 +11,21 @@ const studentSchema = new mongoose.Schema({
     badges: [{ type: String }],
     certificateMints: [{
         course: ObjectId,
-        nftMint: String, // Token mint address
-        txId: String,    // Blockchain transaction
+        nftMint: String,
+        txId: String,   
         mintedAt: Date
-    }]
+    }],
+    isDeleted: { type: Boolean, default: false, index: true },
+    deletedAt: { type: Date, default: null }
 }, { timestamps: true });
+
+studentSchema.pre(/^find/, function(next) {
+    if (this.options._recursed) {
+        return next();
+    }
+    this.where({ isDeleted: false });
+    next();
+});
 
 studentSchema.index(
     { 'certificateMints.course': 1, user: 1 },

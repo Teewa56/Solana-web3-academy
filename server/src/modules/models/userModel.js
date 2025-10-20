@@ -14,8 +14,21 @@ const userSchema = new mongoose.Schema({
     isPasswordReset: { type: Boolean, default: false },
     otp: {type: String, default: null},
     otpExpires: {type: Date, default: null},
-    solanaWallet: { type: String, required: false }, // User's public key
+    solanaWallet: { type: String, required: false }, 
+    
+    isDeleted: { type: Boolean, default: false, index: true },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    deleteReason: String
 }, { timestamps: true });
+
+userSchema.pre(/^find/, function(next) {
+    if (this.options._recursed) {
+        return next();
+    }
+    this.where({ isDeleted: false });
+    next();
+});
 
 userSchema.index({ email: 1 }, { unique: true });
 

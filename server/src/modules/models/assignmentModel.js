@@ -9,7 +9,18 @@ const assignmentSchema = new Schema({
     course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     isActive: { type: Boolean, default: true },
     submissions: [{ type: Schema.Types.ObjectId, ref: 'Submission' }],
+    isDeleted: { type: Boolean, default: false, index: true },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
+
+assignmentSchema.pre(/^find/, function(next) {
+    if (this.options._recursed) {
+        return next();
+    }
+    this.where({ isDeleted: false });
+    next();
+});
 
 assignmentSchema.index({ title: 1, description: 1 }, { unique: true });
 

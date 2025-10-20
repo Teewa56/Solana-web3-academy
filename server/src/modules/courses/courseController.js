@@ -76,10 +76,35 @@ const getCoursesByCohort = async (req, res) => {
     }
 };
 
+const deleteCourse = async (req, res) => {
+    try {
+        const course = await Course.findByIdAndUpdate(
+            req.params.id,
+            { 
+                isDeleted: true,
+                deletedAt: new Date(),
+                deletedBy: req.user.id
+            },
+            { new: true }
+        );
+        
+        logger.info(`Course ${req.params.id} soft deleted by ${req.user.id}`);
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Course deleted successfully',
+            course 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     createCourse,
     getCourse,
     updateCourse,
     listCourses,
-    getCoursesByCohort
+    getCoursesByCohort,
+    deleteCourse
 };

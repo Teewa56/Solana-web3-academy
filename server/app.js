@@ -6,9 +6,9 @@ const hpp = require('hpp');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const {cors_origin_dev, cors_origin_prod, production_enviroment} = require('./src/config/env');
-const rateLimiter = require('./src/middleware/rateLimiter');
 const errorMiddleware = require('./src/middleware/errorMiddleware');
 const authMiddleware = require('./src/middleware/authMiddleware');
+const { globalLimiter } = require('./src/middleware/rateLimiter');
 
 const authRoutes = require('./src/modules/auth/authRoutes');
 const userRoutes = require('./src/modules/routes/userRoutes');
@@ -36,7 +36,7 @@ app.use(cors({
 app.use(morgan('combined'));
 app.use(hpp());
 app.use(compression());
-app.use(rateLimiter);
+app.use(globalLimiter);
 
 app.get('/api/v1/health', (req, res) => {
     res.json({ success: true, message: 'Server is healthy' });

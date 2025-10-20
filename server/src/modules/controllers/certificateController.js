@@ -141,96 +141,102 @@ const generateCertificate = async (req, res) => {
 };
 
 const mintNFT = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { courseId, ipfsUrl, certificateData } = req.body;
         
         if (!ipfsUrl || !certificateData) {
+            await session.abortTransaction();
             return res.status(400).json({ 
                 success: false, 
                 message: 'IPFS URL and certificate data required' 
             });
         }
 
-        const student = await Student.findOne({ user: req.user.id }).populate('user');
-        const course = await Course.findById(courseId);
+        const student = await Student.findOne({ user: req.user.id })
+            .populate('user')
+            .session(session);
+        
+        const course = await Course.findById(courseId).session(session);
         
         if (!student || !course) {
+            await session.abortTransaction();
             return res.status(404).json({ 
                 success: false, 
                 message: 'Student or course not found' 
             });
         }
 
-        // ADD THIS - Check if already minting
-        const existingCert = student.certificateMints.find(
-            cert => cert.course.toString() === courseId
-        );
-
-        if (existingCert) {
-            if (existingCert.txId) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Certificate already minted',
-                    nftMint: existingCert.nftMint
-                });
-            } else {
-                // In progress, wait
-                return res.status(409).json({
-                    success: false,
-                    message: 'Certificate minting in progress'
-                });
-            }
-        }
-
         if (!student.user.solanaWallet) {
+            await session.abortTransaction();
             return res.status(400).json({ 
                 success: false, 
                 message: 'Please connect your Solana wallet first' 
             });
         }
 
-        // ADD PENDING ENTRY
+        // STEP 1: Add pending entry first
         student.certificateMints.push({
             course: courseId,
-            nftMint: null,  // Will be filled after blockchain
+            nftMint: null,
             txId: null,
             mintedAt: new Date(),
-            metadataUri: null
+            metadataUri: null,
+            status: 'pending'  // ADD THIS
         });
-        await student.save();
+        await student.save({ session });
 
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
+        // STEP 2: Try blockchain AFTER DB is in pending state
+        let mintResult;
         try {
-            const mintResult = await solanaService.mintCertificate(
+            mintResult = await solanaService.mintCertificate(
                 student.user.solanaWallet,
                 course.contractAddress || courseId,
                 metadata
             );
-
-            // Update with actual values
-            const certIndex = student.certificateMints.findIndex(
-                c => c.course.toString() === courseId && !c.txId
+        } catch (blockchainError) {
+            // Remove pending entry on blockchain failure
+            student.certificateMints = student.certificateMints.filter(
+                c => !(c.course.toString() === courseId && c.status === 'pending')
             );
-            
-            if (certIndex !== -1) {
-                student.certificateMints[certIndex].nftMint = mintResult.mintAddress;
-                student.certificateMints[certIndex].txId = mintResult.txId;
-                student.certificateMints[certIndex].metadataUri = ipfsUrl;
-            }
-
-            student.coursesCompleted += 1;
-            student.points += 100;
-            
-            const badgeName = `${course.title} Master`;
-            if (!student.badges.includes(badgeName)) {
-                student.badges.push(badgeName);
-            }
-
             await student.save({ session });
-            await session.commitTransaction();
+            await session.abortTransaction();
+            
+            logger.error('Blockchain minting failed:', blockchainError);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to mint certificate on blockchain. Please try again.',
+                error: blockchainError.message
+            });
+        }
 
+        // STEP 3: Update with actual values
+        const certIndex = student.certificateMints.findIndex(
+            c => c.course.toString() === courseId && c.status === 'pending'
+        );
+        
+        if (certIndex !== -1) {
+            student.certificateMints[certIndex].nftMint = mintResult.mintAddress;
+            student.certificateMints[certIndex].txId = mintResult.txId;
+            student.certificateMints[certIndex].metadataUri = ipfsUrl;
+            student.certificateMints[certIndex].status = 'minted';
+        }
+
+        student.coursesCompleted += 1;
+        student.points += 100;
+        
+        const badgeName = `${course.title} Master`;
+        if (!student.badges.includes(badgeName)) {
+            student.badges.push(badgeName);
+        }
+
+        await student.save({ session });
+        await session.commitTransaction();
+
+        // Send email AFTER successful commit
+        try {
             await sendEmail({
                 to: student.user.email,
                 subject: 'Congratulations! Your Certificate is Ready',
@@ -243,34 +249,29 @@ const mintNFT = async (req, res) => {
                     issueDate: new Date().toLocaleDateString()
                 }
             });
-
-            res.status(200).json({ 
-                success: true, 
-                message: 'Certificate NFT minted successfully',
-                nftMint: mintResult.mintAddress,
-                txId: mintResult.txId,
-                explorerUrl: `https://explorer.solana.com/tx/${mintResult.txId}?cluster=devnet`,
-                points: student.points,
-                badges: student.badges
-            });
-
-        } catch (error) {
-            await session.abortTransaction();
-            
-            // Remove pending entry on failure
-            student.certificateMints = student.certificateMints.filter(
-                c => !(c.course.toString() === courseId && !c.txId)
-            );
-            await student.save();
-            
-            logger.error('Certificate minting failed:', error);
-            res.status(500).json({ success: false, message: error.message });
-        } finally {
-            await session.endSession();
+        } catch (emailError) {
+            logger.error('Email send failed (non-blocking):', emailError);
+            // Don't fail the response - cert already minted
         }
+
+        logger.info(`Certificate minted successfully: ${mintResult.mintAddress}`);
+
+        res.status(200).json({ 
+            success: true, 
+            message: 'Certificate NFT minted successfully',
+            nftMint: mintResult.mintAddress,
+            txId: mintResult.txId,
+            explorerUrl: `https://explorer.solana.com/tx/${mintResult.txId}?cluster=devnet`,
+            points: student.points,
+            badges: student.badges
+        });
+
     } catch (error) {
+        await session.abortTransaction();
         logger.error('Error minting NFT:', error);
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        await session.endSession();
     }
 };
 
