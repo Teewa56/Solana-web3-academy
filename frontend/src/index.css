@@ -1,1 +1,87 @@
 @import "tailwindcss";
+
+/* Custom Web3 Neon Styles */
+@keyframes neon-glow {
+  0%, 100% {
+    text-shadow:
+      0 0 5px #FDDA00,
+      0 0 10px #FDDA00,
+      0 0 15px #FDDA00,
+      0 0 20px #FDDA00;
+  }
+  50% {
+    text-shadow:
+      0 0 2px #FDDA00,
+      0 0 5px #FDDA00,
+      0 0 8px #FDDA00,
+      0 0 12px #FDDA00;
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 5px #FDDA00,
+      0 0 10px #FDDA00,
+      0 0 15px #FDDA00;
+  }
+  50% {
+    box-shadow:
+      0 0 10px #FDDA00,
+      0 0 20px #FDDA00,
+      0 0 30px #FDDA00,
+      0 0 40px #FDDA00;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.neon-glow {
+  animation: neon-glow 2s ease-in-out infinite alternate;
+}
+
+.neon-pulse {
+  animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+.neon-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FDDA00;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f4d03f;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #FDDA00 0%, #f4d03f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
