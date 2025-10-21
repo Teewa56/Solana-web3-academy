@@ -17,10 +17,20 @@ export default function Navbar() {
   const navItems = [
     { name: 'Home', href: '#home' },
     { name: 'Features', href: '#features' },
-    { name: 'Courses', href: '#courses' },
     { name: 'About', href: '#about' },
     { name: 'Contact', href: '#contact' }
   ]
+
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href)
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+    setIsOpen(false) // Close mobile menu after navigation
+  }
 
   return (
     <motion.nav
@@ -53,15 +63,15 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item, index) => (
-              <motion.a
+              <motion.button
                 key={item.name}
-                href={item.href}
+                onClick={() => scrollToSection(item.href)}
                 whileHover={{ y: -2 }}
                 className="text-gray-300 hover:text-[#FDDA00] transition-colors duration-300 font-medium"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {item.name}
-              </motion.a>
+              </motion.button>
             ))}
           </div>
 
@@ -107,20 +117,19 @@ export default function Navbar() {
         >
           <div className="px-2 pt-2 pb-3 space-y-1 bg-black/95 backdrop-blur-md rounded-lg mt-2 border border-[#FDDA00]/20">
             {navItems.map((item, index) => (
-              <motion.a
+              <motion.button
                 key={item.name}
-                href={item.href}
+                onClick={() => scrollToSection(item.href)}
                 initial={{ x: -20, opacity: 0 }}
                 animate={{
                   x: isOpen ? 0 : -20,
                   opacity: isOpen ? 1 : 0
                 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 text-gray-300 hover:text-[#FDDA00] hover:bg-[#FDDA00]/10 rounded-lg transition-all duration-300"
+                className="block w-full text-left px-3 py-2 text-gray-300 hover:text-[#FDDA00] hover:bg-[#FDDA00]/10 rounded-lg transition-all duration-300"
               >
                 {item.name}
-              </motion.a>
+              </motion.button>
             ))}
             <div className="pt-4 border-t border-[#FDDA00]/20">
               <motion.button

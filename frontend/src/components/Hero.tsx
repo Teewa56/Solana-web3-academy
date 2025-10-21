@@ -41,7 +41,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4">
+    <section id="home" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
@@ -72,12 +72,12 @@ export default function Hero() {
             </span>
         </h1>
 
-          <p 
+          <p
             ref={subtitleRef}
             className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
-            Master blockchain development with <span className="text-[#FDDA00] font-semibold">Solana</span> at Orion Academy, earn 
-            <span className="text-[#FDDA00] font-semibold"> NFT certificates</span>, and join the future of 
+            Master blockchain development with <span className="text-[#FDDA00] font-semibold">Solana</span> at Orion Academy, earn
+            <span className="text-[#FDDA00] font-semibold"> NFT certificates</span>, and join the future of
             <span className="text-[#FDDA00] font-semibold"> decentralized education</span>
           </p>
 

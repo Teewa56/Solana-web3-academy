@@ -1,5 +1,5 @@
 
-import { Navbar, Hero, Features, CTA, Footer } from './components'
+import { Navbar, Hero, Features, About, CTA, Contact, Footer } from './components'
 
 function App() {
   return (
@@ -7,7 +7,9 @@ function App() {
       <Navbar />
       <Hero />
       <Features />
+      <About />
       <CTA />
+      <Contact />
       <Footer />
     </div>
   )
