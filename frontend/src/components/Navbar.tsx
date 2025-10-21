@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { useNavigation } from '../contexts/NavigationContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { navigate } = useNavigation()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,6 +32,10 @@ export default function Navbar() {
       })
     }
     setIsOpen(false) // Close mobile menu after navigation
+  }
+
+  const handleLogin = () => {
+    navigate('/login')
   }
 
   return (
@@ -78,6 +84,7 @@ export default function Navbar() {
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <motion.button
+              onClick={handleLogin}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300"
@@ -85,6 +92,7 @@ export default function Navbar() {
               Login
             </motion.button>
             <motion.button
+              onClick={() => navigate('/register')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
