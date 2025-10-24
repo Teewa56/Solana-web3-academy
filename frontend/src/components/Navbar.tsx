@@ -61,7 +61,7 @@ export default function Navbar() {
               alt="Orion Academy Logo"
               className="w-10 h-10 object-contain"
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent orbitron-font">
               Orion Academy
             </span>
           </motion.div>
@@ -87,7 +87,7 @@ export default function Navbar() {
               onClick={handleLogin}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300"
+              className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300 orbitron-font"
             >
               Login
             </motion.button>
@@ -95,7 +95,7 @@ export default function Navbar() {
               onClick={() => navigate('/register')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
+              className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
             >
               Get Started
             </motion.button>
@@ -147,6 +147,10 @@ export default function Navbar() {
                   opacity: isOpen ? 1 : 0
                 }}
                 transition={{ delay: 0.5 }}
+                onClick={() => {
+                  handleLogin()
+                  setIsOpen(false)
+                }}
                 className="w-full text-left px-3 py-2 text-[#FDDA00] hover:bg-[#FDDA00]/10 rounded-lg transition-all duration-300"
               >
                 Login
@@ -158,6 +162,10 @@ export default function Navbar() {
                   opacity: isOpen ? 1 : 0
                 }}
                 transition={{ delay: 0.6 }}
+                onClick={() => {
+                  navigate('/register')
+                  setIsOpen(false)
+                }}
                 className="w-full text-left px-3 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg mt-2"
               >
                 Get Started

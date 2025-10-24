@@ -11,7 +11,33 @@ import {
   Zap
 } from 'lucide-react'
 
+
 export default function Dashboard() {
+  // Get user data from localStorage
+  const getUserData = () => {
+    try {
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        const userData = JSON.parse(storedUser)
+        console.log('Stored user data:', userData)
+
+        // Handle missing fullName by using email or providing a fallback
+        return {
+          ...userData,
+          fullName: userData.fullName || userData.name || userData.email?.split('@')[0] || 'Student',
+          role: userData.role || 'Student'
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error)
+    }
+    return { fullName: 'Student', role: 'Student' }
+  }
+
+  const userData = getUserData()
+  console.log(userData)
+
+  // Static dashboard data
   const stats = [
     { icon: <BookOpen className="w-6 h-6" />, label: 'Courses Enrolled', value: '3', color: 'text-blue-400' },
     { icon: <FileText className="w-6 h-6" />, label: 'Assignments', value: '12', color: 'text-green-400' },
@@ -81,7 +107,7 @@ export default function Dashboard() {
         className="bg-gradient-to-r from-[#FDDA00]/10 to-transparent border border-[#FDDA00]/20 rounded-xl p-6"
       >
         <h1 className="text-3xl font-bold text-white mb-2">
-          Welcome back, <span className="text-[#FDDA00]">John</span>! 👋
+          Welcome back, <span className="text-[#FDDA00]">{userData.fullName || 'Student'}</span>! 👋
         </h1>
         <p className="text-gray-400">
           Ready to continue your Web3 development journey? You're making great progress!

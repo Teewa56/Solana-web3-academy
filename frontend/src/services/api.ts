@@ -1,5 +1,8 @@
-import axios from 'axios'
+import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
+// API Base URL - Change this to your backend URL
+// For development: http://localhost:5000/api/v1
+// For production: https://solana-web3-academy.onrender.com/api/v1
 const API_BASE_URL = 'http://localhost:5000/api/v1'
 
 // Create axios instance
@@ -12,23 +15,23 @@ const api = axios.create({
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('accessToken')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  (error) => {
+  (error: AxiosError) => {
     return Promise.reject(error)
   }
 )
 
 // Response interceptor to handle token refresh
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true

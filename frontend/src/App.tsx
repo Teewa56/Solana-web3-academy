@@ -27,6 +27,24 @@ function App() {
         case '/dashboard':
           setCurrentPage('dashboard')
           break
+        case '/dashboard/courses':
+          setCurrentPage('dashboard-courses')
+          break
+        case '/dashboard/assignments':
+          setCurrentPage('dashboard-assignments')
+          break
+        case '/dashboard/progress':
+          setCurrentPage('dashboard-progress')
+          break
+        case '/dashboard/certificates':
+          setCurrentPage('dashboard-certificates')
+          break
+        case '/dashboard/leaderboard':
+          setCurrentPage('dashboard-leaderboard')
+          break
+        case '/dashboard/settings':
+          setCurrentPage('dashboard-settings')
+          break
         default:
           setCurrentPage('home')
       }

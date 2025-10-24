@@ -57,7 +57,7 @@ export default function Contact() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
             Get in <span className="text-[#FDDA00]">Touch</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
@@ -74,7 +74,7 @@ export default function Contact() {
             viewport={{ once: true }}
             className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
           >
-            <h3 className="text-2xl font-bold text-[#FDDA00] mb-6 flex items-center gap-2">
+            <h3 className="text-2xl font-bold text-[#FDDA00] mb-6 flex items-center gap-2 orbitron-font">
               <MessageCircle className="w-6 h-6" />
               Send us a Message
             </h3>
@@ -149,7 +149,7 @@ export default function Contact() {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full px-6 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 flex items-center justify-center gap-2 orbitron-font"
               >
                 <Send className="w-5 h-5" />
                 Send Message
@@ -166,7 +166,7 @@ export default function Contact() {
             className="space-y-8"
           >
             <div>
-              <h3 className="text-2xl font-bold text-[#FDDA00] mb-6 flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-[#FDDA00] mb-6 flex items-center gap-2 orbitron-font">
                 <Clock className="w-6 h-6" />
                 Contact Information
               </h3>
@@ -190,7 +190,7 @@ export default function Contact() {
                     {info.icon}
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-1">{info.title}</h4>
+                    <h4 className="text-lg font-semibold text-white mb-1 orbitron-font">{info.title}</h4>
                     <p className="text-[#FDDA00] font-medium mb-1">{info.details}</p>
                     <p className="text-gray-400 text-sm">{info.description}</p>
                   </div>
@@ -206,7 +206,7 @@ export default function Contact() {
               viewport={{ once: true }}
               className="bg-gradient-to-r from-[#FDDA00]/10 to-transparent border border-[#FDDA00]/20 rounded-lg p-6"
             >
-              <h4 className="text-lg font-bold text-[#FDDA00] mb-3">Quick Response</h4>
+              <h4 className="text-lg font-bold text-[#FDDA00] mb-3 orbitron-font">Quick Response</h4>
               <p className="text-gray-300 mb-4">
                 We typically respond to all inquiries within 24 hours. For urgent matters, please call us directly.
               </p>

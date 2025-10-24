@@ -10,7 +10,7 @@ export default function CTA() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
             Ready to Start Your <span className="text-[#FDDA00]">Web3 Journey</span>?
           </h2>
           <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
@@ -20,14 +20,16 @@ export default function CTA() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-[#FDDA00] text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
+              onClick={() => window.location.href = '/register'}
+              className="px-8 py-4 bg-[#FDDA00] text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors orbitron-font"
             >
               Get Started Now
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all orbitron-font"
             >
               View Courses
             </motion.button>

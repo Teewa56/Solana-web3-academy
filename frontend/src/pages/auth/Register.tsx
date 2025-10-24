@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from 'lucide-react'
 import { useNavigation } from '../../contexts/NavigationContext'
+import { authAPI } from '../../services/api'
 
 export default function Register() {
   const { navigate } = useNavigation()
@@ -15,6 +16,7 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -25,29 +27,39 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match')
+      setError('Passwords do not match')
       return
     }
 
     if (!agreedToTerms) {
-      alert('Please agree to the terms and conditions')
+      setError('Please agree to the terms and conditions')
       return
     }
 
     setIsLoading(true)
 
     try {
-      // TODO: Implement register API call
-      console.log('Register data:', formData)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await authAPI.register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: 'student'
+      })
 
-      // Redirect to email verification
-      navigate('/verify-email')
-    } catch (error) {
+      if (response.data.success) {
+        // Store email for verification page
+        localStorage.setItem('pendingEmail', formData.email)
+        // Redirect to email verification
+        navigate('/verify-email')
+      } else {
+        setError(response.data.message || 'Registration failed')
+      }
+    } catch (error: any) {
       console.error('Register error:', error)
+      setError(error.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -99,6 +111,13 @@ export default function Register() {
           className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Full Name Field */}
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-2">
