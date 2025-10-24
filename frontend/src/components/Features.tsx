@@ -52,7 +52,7 @@ export default function Features() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
             Why Choose <span className="text-[#FDDA00]">Orion Academy</span>?
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
@@ -74,7 +74,7 @@ export default function Features() {
               <div className="text-[#FDDA00] mb-4 group-hover:scale-110 transition-transform">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-bold mb-3 orbitron-font">{feature.title}</h3>
               <p className="text-gray-400">{feature.description}</p>
             </motion.div>
           ))}

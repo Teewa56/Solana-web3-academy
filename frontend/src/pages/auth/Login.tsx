@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useNavigation } from '../../contexts/NavigationContext'
+import { authAPI } from '../../services/api'
 
 export default function Login() {
   const { navigate } = useNavigation()
@@ -11,6 +12,7 @@ export default function Login() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -21,18 +23,33 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setIsLoading(true)
 
     try {
-      // TODO: Implement login API call
-      console.log('Login data:', formData)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await authAPI.login({
+        email: formData.email,
+        password: formData.password
+      })
 
-      // Redirect to dashboard after successful login
-      navigate('/dashboard')
-    } catch (error) {
+      if (response.data.success) {
+        // Store tokens
+        localStorage.setItem('accessToken', response.data.accessToken)
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken)
+        }
+
+        // Store user data
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+
+        // Redirect to dashboard after successful login
+        navigate('/dashboard')
+      } else {
+        setError(response.data.message || 'Login failed')
+      }
+    } catch (error: any) {
       console.error('Login error:', error)
+      setError(error.response?.data?.message || 'Login failed. Please check your credentials.')
     } finally {
       setIsLoading(false)
     }
@@ -77,6 +94,13 @@ export default function Login() {
           className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">

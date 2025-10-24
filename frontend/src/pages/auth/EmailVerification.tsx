@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, ArrowRight, RefreshCw, CheckCircle } from 'lucide-react'
 import { useNavigation } from '../../contexts/NavigationContext'
+import { authAPI } from '../../services/api'
 
 export default function EmailVerification() {
   const { navigate } = useNavigation()
@@ -10,10 +11,10 @@ export default function EmailVerification() {
   const [isResending, setIsResending] = useState(false)
   const [timeLeft, setTimeLeft] = useState(300) // 5 minutes
   const [isVerified, setIsVerified] = useState(false)
+  const [error, setError] = useState('')
 
-  // Get email from URL params or use default
-  const urlParams = new URLSearchParams(window.location.search)
-  const email = urlParams.get('email') || 'your@email.com'
+  // Get email from localStorage or URL params
+  const email = localStorage.getItem('pendingEmail') || 'your@email.com'
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -46,26 +47,38 @@ export default function EmailVerification() {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     const otpCode = otp.join('')
+    setError('')
 
     if (otpCode.length !== 6) {
-      alert('Please enter the complete 6-digit code')
+      setError('Please enter the complete 6-digit code')
       return
     }
 
     setIsLoading(true)
 
     try {
-      // TODO: Implement OTP verification API call
-      console.log('Verifying OTP:', otpCode)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await authAPI.verifyEmail({
+        email: email,
+        otp: otpCode
+      })
 
-      setIsVerified(true)
-      // Redirect to dashboard after successful verification
-      navigate('/dashboard')
-    } catch (error) {
+      if (response.data.success) {
+        // Store tokens and user data
+        localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('user', JSON.stringify(response.data.userData))
+
+        // Clear pending email
+        localStorage.removeItem('pendingEmail')
+
+        setIsVerified(true)
+        // Redirect to dashboard after successful verification
+        navigate('/dashboard')
+      } else {
+        setError(response.data.message || 'Invalid OTP. Please try again.')
+      }
+    } catch (error: any) {
       console.error('Verification error:', error)
-      alert('Invalid OTP. Please try again.')
+      setError(error.response?.data?.message || 'Invalid OTP. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -73,18 +86,22 @@ export default function EmailVerification() {
 
   const handleResendOtp = async () => {
     setIsResending(true)
+    setError('')
 
     try {
-      // TODO: Implement resend OTP API call
-      console.log('Resending OTP to:', email)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await authAPI.resendOTP({
+        email: email
+      })
 
-      setTimeLeft(300) // Reset timer
-      alert('OTP sent successfully!')
-    } catch (error) {
+      if (response.data.success) {
+        setTimeLeft(300) // Reset timer
+        setError('') // Clear any previous errors
+      } else {
+        setError(response.data.message || 'Failed to resend OTP. Please try again.')
+      }
+    } catch (error: any) {
       console.error('Resend error:', error)
-      alert('Failed to resend OTP. Please try again.')
+      setError(error.response?.data?.message || 'Failed to resend OTP. Please try again.')
     } finally {
       setIsResending(false)
     }
@@ -173,6 +190,13 @@ export default function EmailVerification() {
           className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
         >
           <form onSubmit={handleVerify} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* OTP Input */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-4 text-center">

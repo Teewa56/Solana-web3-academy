@@ -59,13 +59,13 @@ export default function Hero() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FDDA00]/30 bg-[#FDDA00]/10 backdrop-blur-sm mb-6">
             <Sparkles className="w-4 h-4 text-[#FDDA00]" />
-            <span className="text-sm font-medium text-[#FDDA00]">Web3 Education Platform</span>
+            <span className="text-sm font-medium text-[#FDDA00] orbitron-font">Web3 Education Platform</span>
           </div>
         </motion.div>
 
         <h1
           ref={titleRef}
-          className="text-6xl md:text-8xl font-bold mb-6 leading-tight"
+          className="text-6xl md:text-8xl font-bold mb-6 leading-tight orbitron-font"
         >
             <span className="bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
               Orion Academy
@@ -85,7 +85,8 @@ export default function Hero() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
+            onClick={() => window.location.href = '/register'}
+            className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
           >
             <span className="relative z-10 flex items-center gap-2">
               Start Learning
@@ -97,7 +98,8 @@ export default function Hero() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group flex items-center gap-2 px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300"
+            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group flex items-center gap-2 px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300 orbitron-font"
           >
             <Play className="w-5 h-5" />
             Watch Demo
