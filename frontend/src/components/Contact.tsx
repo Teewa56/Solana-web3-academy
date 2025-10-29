@@ -47,7 +47,7 @@ export default function Contact() {
   ]
 
   return (
-    <section id="contact" className="py-20 px-4 bg-gradient-to-br from-black via-gray-900 to-black">
+    <section id="contact" className="py-20 px-4 bg-black">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

@@ -52,15 +52,15 @@ export default function Footer() {
             <div className="flex items-center space-x-3 mb-6">
               <img
                 src="/orionorion.png"
-                alt="Orion Academy Logo"
+                alt="Orion Logo"
                 className="w-12 h-12 object-contain"
               />
               <span className="text-2xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent orbitron-font">
-                Orion Academy
+                Orion
               </span>
             </div>
             <p className="text-gray-400 mb-6 max-w-sm">
-              Master blockchain development with Solana at Orion Academy. Earn NFT certificates and join the future of decentralized education.
+              Master blockchain development with Solana at Orion. Earn NFT certificates and join the future of decentralized education.
             </p>
             <div className="flex space-x-4">
             {/* @ts-ignore */}
@@ -177,7 +177,7 @@ export default function Footer() {
         >
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-bold text-[#FDDA00] mb-4 orbitron-font">
-              Stay Updated with Orion Academy
+              Stay Updated with Orion
             </h3>
             <p className="text-gray-400 mb-6">
               Get the latest updates on new courses, features, and blockchain education trends.
@@ -212,7 +212,7 @@ export default function Footer() {
               viewport={{ once: true }}
               className="text-gray-400 text-sm mb-4 md:mb-0"
             >
-              © 2025 Orion Academy. All rights reserved.
+              © 2025 Orion. All rights reserved.
             </motion.div>
 
             <motion.div

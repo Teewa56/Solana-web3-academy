@@ -43,7 +43,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-20 px-4">
+    <section id="features" className="py-20 px-4 bg-black">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ y: 50, opacity: 0 }}
@@ -53,7 +53,7 @@ export default function Features() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
-            Why Choose <span className="text-[#FDDA00]">Orion Academy</span>?
+            Why Choose <span className="text-[#FDDA00]">Orion</span>?
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Learn blockchain development with industry-leading curriculum and earn verifiable credentials

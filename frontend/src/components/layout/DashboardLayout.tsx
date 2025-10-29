@@ -92,11 +92,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center gap-3">
             <img
               src="/orionorion.png"
-              alt="Orion Academy Logo"
+              alt="Orion Logo"
               className="w-8 h-8 object-contain"
             />
             <span className="text-lg font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion Academy
+              Orion
             </span>
           </div>
         </div>
@@ -182,11 +182,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="flex items-center gap-3">
                   <img
                     src="/orionorion.png"
-                    alt="Orion Academy Logo"
+                    alt="Orion Logo"
                     className="w-8 h-8 object-contain"
                   />
                   <span className="text-lg font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-                    Orion Academy
+                    Orion
                   </span>
                 </div>
                 <button
@@ -280,11 +280,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="hidden lg:flex items-center gap-3">
               <img
                 src="/orionorion.png"
-                alt="Orion Academy Logo"
+                alt="Orion Logo"
                 className="w-8 h-8 object-contain"
               />
               <span className="text-lg font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-                Orion Academy
+                Orion
               </span>
             </div>
 
