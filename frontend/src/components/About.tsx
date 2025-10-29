@@ -10,7 +10,7 @@ export default function About() {
   ]
 
   return (
-    <section id="about" className="py-20 px-4 bg-gradient-to-br from-gray-900 to-black">
+    <section id="about" className="py-20 px-4 bg-black">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -21,7 +21,7 @@ export default function About() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
-            About <span className="text-[#FDDA00]">Orion Academy</span>
+            About <span className="text-[#FDDA00]">Orion</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             We're revolutionizing blockchain education by combining cutting-edge curriculum with real-world applications and industry partnerships.
@@ -38,7 +38,7 @@ export default function About() {
           >
             <h3 className="text-3xl font-bold text-[#FDDA00] mb-6 orbitron-font">Our Mission</h3>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              At Orion Academy, we believe that blockchain technology is the future of the internet. Our mission is to provide world-class education that prepares students for the rapidly evolving Web3 landscape.
+              At Orion, we believe that blockchain technology is the future of the internet. Our mission is to provide world-class education that prepares students for the rapidly evolving Web3 landscape.
             </p>
             <p className="text-gray-300 mb-8 leading-relaxed">
               We combine traditional learning methodologies with cutting-edge blockchain technology to create an immersive educational experience that produces industry-ready developers.

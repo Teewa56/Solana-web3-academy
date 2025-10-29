@@ -43,7 +43,7 @@ export default function Hero() {
   return (
     <section id="home" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4">
       {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="absolute inset-0 bg-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
         <div className="absolute top-20 left-20 w-32 h-32 bg-[#FDDA00] rounded-full blur-3xl opacity-20 neon-float"></div>
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#FDDA00] rounded-full blur-3xl opacity-15 neon-float" style={{animationDelay: '1s'}}></div>
@@ -68,7 +68,7 @@ export default function Hero() {
           className="text-6xl md:text-8xl font-bold mb-6 leading-tight orbitron-font"
         >
             <span className="bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion Academy
+              Orion
             </span>
         </h1>
 
@@ -76,9 +76,8 @@ export default function Hero() {
             ref={subtitleRef}
             className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
-            Master blockchain development with <span className="text-[#FDDA00] font-semibold">Solana</span> at Orion Academy, earn
-            <span className="text-[#FDDA00] font-semibold"> NFT certificates</span>, and join the future of
-            <span className="text-[#FDDA00] font-semibold"> decentralized education</span>
+            Converting <span className="text-[#FDDA00] font-semibold">Web3 Enthusiasts</span> to
+            <span className="text-[#FDDA00] font-semibold"> Product Users</span>.
           </p>
 
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center">

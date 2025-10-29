@@ -58,11 +58,11 @@ export default function Navbar() {
           >
             <img
               src="/orionorion.png"
-              alt="Orion Academy Logo"
+              alt="Orion Logo"
               className="w-10 h-10 object-contain"
             />
             <span className="text-xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent orbitron-font">
-              Orion Academy
+              Orion
             </span>
           </motion.div>
 
