@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { motion } from 'framer-motion'
-import { ArrowRight, Play, Sparkles, Twitter, Book, Send } from 'lucide-react'
+import { ArrowRight, Twitter, Book, Send } from 'lucide-react'
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -41,45 +41,49 @@ export default function Hero() {
   }, [])
 
   return (
-    <section id="home" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4">
+    <section id="home" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 lg:mt-15">
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-6xl mx-auto">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FDDA00]/30 bg-[#FDDA00]/10 backdrop-blur-sm mb-6">
-            <Sparkles className="w-4 h-4 text-[#FDDA00]" />
-            <span className="text-sm font-medium text-[#FDDA00] orbitron-font">Web3 Education Platform</span>
-          </div>
+          <motion.img
+            src="/orionorion.png"
+            alt="Orion mark"
+            className="mx-auto w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(253,218,0,0.25)]"
+            animate={{ y: [0, -6, 0], rotate: [0, 1.5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
         </motion.div>
 
         <h1
           ref={titleRef}
-          className="text-6xl md:text-8xl font-bold mb-6 leading-tight orbitron-font"
+          className="heading-font text-[2rem] leading-[1.08] sm:text-[2.25rem] md:text-6xl lg:text-7xl xl:text-8xl font-semibold mb-6 text-white"
         >
-            <span className="bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion
-            </span>
+          Converting{' '}
+          <br />
+          <span className="text-[#FDDA00]">Web3 Enthusiasts</span>{' '}
+          <br />
+          into Product Users
         </h1>
 
-          <p
-            ref={subtitleRef}
-            className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
-          >
-            Converting <span className="text-[#FDDA00] font-semibold">Web3 Enthusiasts</span> to
-            <span className="text-[#FDDA00] font-semibold"> Product Users</span>.
-          </p>
+        <p
+          ref={subtitleRef}
+          className="text-base md:text-lg text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed"
+        >
+          Learn, build, and ship with an academy designed for real product adoption.
+        </p>
 
         <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/register'}
-            className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
+            className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
           >
             <span className="relative z-10 flex items-center gap-2">
               Signup
@@ -88,15 +92,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#FDDA00] to-yellow-400 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
           </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-            className="group flex items-center gap-2 px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300 orbitron-font"
-          >
-            <Play className="w-5 h-5" />
-            Watch Demo
-          </motion.button>
+          {/* Secondary demo button removed per request */}
         </div>
 
         {/* Quick actions row */}
@@ -110,6 +106,7 @@ export default function Hero() {
           >
             <Twitter className="w-5 h-5" />
           </a>
+          <span className="h-6 w-px bg-white/10" aria-hidden="true" />
           <a
             href="/whitepaper"
             className="group p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-gray-200 hover:text-[#FDDA00] hover:border-[#FDDA00]/40 transition"
@@ -117,6 +114,7 @@ export default function Hero() {
           >
             <Book className="w-5 h-5" />
           </a>
+          <span className="h-6 w-px bg-white/10" aria-hidden="true" />
           <a
             href="https://t.me/yourchannel"
             target="_blank"

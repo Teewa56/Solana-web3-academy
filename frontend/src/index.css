@@ -9,6 +9,16 @@
   font-display: swap;
 }
 
+
+/* Cormorant Garamond (Bold provided) */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('./assets/fonts/CormorantGaramond-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Custom Web3 Neon Styles */
 @keyframes neon-glow {
   0%, 100% {
@@ -91,6 +101,7 @@ html {
 body {
   background: #000;
   color-scheme: dark;
+  font-family: 'Cormorant Garamond', ui-serif, Georgia, "Times New Roman", serif;
 }
 
 /* Custom gradient text */
@@ -106,4 +117,10 @@ body {
   font-family: 'Orbitron', sans-serif;
   font-weight: 700;
   letter-spacing: 0.05em;
+}
+
+/* Heading font stack preferring Canela with graceful fallbacks */
+.heading-font {
+  font-family: 'Cormorant Garamond', ui-serif, Georgia, "Times New Roman", serif;
+  letter-spacing: -0.01em;
 }

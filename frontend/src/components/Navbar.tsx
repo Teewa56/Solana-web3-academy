@@ -61,7 +61,7 @@ export default function Navbar() {
               alt="Orion Logo"
               className="w-10 h-10 object-contain"
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent orbitron-font">
+            <span className="text-xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent heading-font">
               Orion
             </span>
           </motion.div>
@@ -87,7 +87,7 @@ export default function Navbar() {
               onClick={handleLogin}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300 orbitron-font"
+              className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300"
             >
               Login
             </motion.button>
@@ -95,7 +95,7 @@ export default function Navbar() {
               onClick={() => navigate('/register')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
+              className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
             >
               Get Started
             </motion.button>
