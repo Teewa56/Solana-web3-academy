@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { motion } from 'framer-motion'
-import { ArrowRight, Play, Sparkles } from 'lucide-react'
+import { ArrowRight, Play, Sparkles, Twitter, Book, Send } from 'lucide-react'
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -42,12 +42,6 @@ export default function Hero() {
 
   return (
     <section id="home" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-black">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
-        <div className="absolute top-20 left-20 w-32 h-32 bg-[#FDDA00] rounded-full blur-3xl opacity-20 neon-float"></div>
-        <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#FDDA00] rounded-full blur-3xl opacity-15 neon-float" style={{animationDelay: '1s'}}></div>
-      </div>
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-6xl mx-auto">
@@ -88,7 +82,7 @@ export default function Hero() {
             className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
           >
             <span className="relative z-10 flex items-center gap-2">
-              Start Learning
+              Signup
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-[#FDDA00] to-yellow-400 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -104,12 +98,38 @@ export default function Hero() {
             Watch Demo
           </motion.button>
         </div>
+
+        {/* Quick actions row */}
+        <div className="mt-8 flex items-center justify-center gap-6">
+          <a
+            href="https://x.com/yourhandle"
+            target="_blank"
+            rel="noreferrer"
+            className="group p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-gray-200 hover:text-[#FDDA00] hover:border-[#FDDA00]/40 transition"
+            aria-label="X (Twitter)"
+          >
+            <Twitter className="w-5 h-5" />
+          </a>
+          <a
+            href="/whitepaper"
+            className="group p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-gray-200 hover:text-[#FDDA00] hover:border-[#FDDA00]/40 transition"
+            aria-label="Whitepaper"
+          >
+            <Book className="w-5 h-5" />
+          </a>
+          <a
+            href="https://t.me/yourchannel"
+            target="_blank"
+            rel="noreferrer"
+            className="group p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-gray-200 hover:text-[#FDDA00] hover:border-[#FDDA00]/40 transition"
+            aria-label="Telegram"
+          >
+            <Send className="w-5 h-5" />
+          </a>
+        </div>
       </div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-1/4 left-10 w-4 h-4 bg-[#FDDA00] rounded-full opacity-60 neon-float"></div>
-      <div className="absolute top-1/3 right-16 w-6 h-6 bg-[#FDDA00] rounded-full opacity-40 neon-float" style={{animationDelay: '0.5s'}}></div>
-      <div className="absolute bottom-1/4 left-1/4 w-3 h-3 bg-[#FDDA00] rounded-full opacity-50 neon-float" style={{animationDelay: '1.5s'}}></div>
+      {/* Optional floating accents removed to keep background consistent */}
     </section>
   )
 }
