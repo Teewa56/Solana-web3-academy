@@ -50,10 +50,10 @@ export default function Register() {
       })
 
       if (response.data.success) {
-        // Store email for verification page
+        // Store email in case we want to verify later
         localStorage.setItem('pendingEmail', formData.email)
-        // Redirect to email verification
-        navigate('/verify-email')
+        // Continue onboarding to Connect page
+        navigate('/connect')
       } else {
         setError(response.data.message || 'Registration failed')
       }

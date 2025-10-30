@@ -47,7 +47,7 @@ export default function Contact() {
   ]
 
   return (
-    <section id="contact" className="py-20 px-4 bg-black">
+    <section id="contact" className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

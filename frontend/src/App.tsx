@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react'
 import { NavigationProvider } from './contexts/NavigationContext'
 import { Navbar, Hero, Features, About, CTA, Contact, Footer } from './components'
 import DashboardLayout from './components/layout/DashboardLayout'
+import Background from './components/Background'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import EmailVerification from './pages/auth/EmailVerification'
 import Dashboard from './pages/dashboard/Dashboard'
+import Whitepaper from './pages/Whitepaper'
+import Connect from './pages/Connect'
+import ComingSoon from './pages/ComingSoon'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -20,6 +24,15 @@ function App() {
         case '/register':
         case '/signup':
           setCurrentPage('register')
+          break
+        case '/whitepaper':
+          setCurrentPage('whitepaper')
+          break
+        case '/connect':
+          setCurrentPage('connect')
+          break
+        case '/coming-soon':
+          setCurrentPage('coming-soon')
           break
         case '/verify-email':
           setCurrentPage('verify-email')
@@ -64,6 +77,12 @@ function App() {
         return <Login />
       case 'register':
         return <Register />
+      case 'whitepaper':
+        return <Whitepaper />
+      case 'connect':
+        return <Connect />
+      case 'coming-soon':
+        return <ComingSoon />
       case 'verify-email':
         return <EmailVerification />
       case 'dashboard':
@@ -74,7 +93,8 @@ function App() {
         )
       default:
         return (
-          <div className="min-h-screen bg-black text-white overflow-x-hidden">
+          <div className="min-h-screen text-white overflow-x-hidden relative">
+            <Background />
             <Navbar />
             <Hero />
             <Features />

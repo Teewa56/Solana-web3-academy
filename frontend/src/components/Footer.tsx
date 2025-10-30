@@ -37,7 +37,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-black border-t border-[#FDDA00]/20">
+    <footer className="border-t border-[#FDDA00]/20 bg-transparent relative">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -202,7 +202,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800 bg-gray-900/50">
+      <div className="border-t border-gray-800 bg-white/5 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <motion.div
@@ -236,9 +236,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Floating Elements */}
-      <div className="absolute bottom-4 left-4 w-2 h-2 bg-[#FDDA00] rounded-full opacity-60 neon-float"></div>
-      <div className="absolute bottom-8 right-8 w-3 h-3 bg-[#FDDA00] rounded-full opacity-40 neon-float" style={{animationDelay: '1s'}}></div>
+      {/* Decorative floating elements removed for unified background */}
     </footer>
   )
 }
