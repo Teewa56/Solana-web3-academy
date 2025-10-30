@@ -20,7 +20,7 @@ export default function About() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 orbitron-font">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 heading-font">
             About <span className="text-[#FDDA00]">Orion</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
@@ -36,7 +36,7 @@ export default function About() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-3xl font-bold text-[#FDDA00] mb-6 orbitron-font">Our Mission</h3>
+            <h3 className="text-3xl font-bold text-[#FDDA00] mb-6 heading-font">Our Mission</h3>
             <p className="text-gray-300 mb-6 leading-relaxed">
               At Orion, we believe that blockchain technology is the future of the internet. Our mission is to provide world-class education that prepares students for the rapidly evolving Web3 landscape.
             </p>
@@ -100,22 +100,22 @@ export default function About() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <h3 className="text-3xl font-bold text-[#FDDA00] mb-8 orbitron-font">Our Values</h3>
+          <h3 className="text-3xl font-bold text-[#FDDA00] mb-8 heading-font">Our Values</h3>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
-              <h4 className="text-xl font-bold text-white mb-3 orbitron-font">Innovation</h4>
+              <h4 className="text-xl font-bold text-white mb-3 heading-font">Innovation</h4>
               <p className="text-gray-400">
                 We stay at the forefront of blockchain technology, constantly updating our curriculum to reflect the latest developments.
               </p>
             </div>
             <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
-              <h4 className="text-xl font-bold text-white mb-3 orbitron-font">Excellence</h4>
+              <h4 className="text-xl font-bold text-white mb-3 heading-font">Excellence</h4>
               <p className="text-gray-400">
                 We maintain the highest standards in education, ensuring every student receives world-class training and support.
               </p>
             </div>
             <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
-              <h4 className="text-xl font-bold text-white mb-3 orbitron-font">Community</h4>
+              <h4 className="text-xl font-bold text-white mb-3 heading-font">Community</h4>
               <p className="text-gray-400">
                 We foster a supportive learning environment where students can grow together and build lasting professional networks.
               </p>

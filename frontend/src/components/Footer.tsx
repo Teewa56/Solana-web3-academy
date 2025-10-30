@@ -55,7 +55,7 @@ export default function Footer() {
                 alt="Orion Logo"
                 className="w-12 h-12 object-contain"
               />
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent orbitron-font">
+              <span className="text-2xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent heading-font">
                 Orion
               </span>
             </div>
@@ -86,7 +86,7 @@ export default function Footer() {
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 orbitron-font">Platform</h3>
+            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 heading-font">Platform</h3>
             <ul className="space-y-3">
               {footerLinks.platform.map((link, index) => (
                 <motion.li
@@ -115,7 +115,7 @@ export default function Footer() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 orbitron-font">Resources</h3>
+            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 heading-font">Resources</h3>
             <ul className="space-y-3">
               {footerLinks.resources.map((link, index) => (
                 <motion.li
@@ -144,7 +144,7 @@ export default function Footer() {
             transition={{ duration: 0.6, delay: 0.3 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 orbitron-font">Company</h3>
+            <h3 className="text-lg font-bold text-[#FDDA00] mb-6 heading-font">Company</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link, index) => (
                 <motion.li
@@ -176,7 +176,7 @@ export default function Footer() {
           className="mt-16 pt-8 border-t border-gray-800"
         >
           <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-[#FDDA00] mb-4 orbitron-font">
+            <h3 className="text-2xl font-bold text-[#FDDA00] mb-4 heading-font">
               Stay Updated with Orion
             </h3>
             <p className="text-gray-400 mb-6">
@@ -192,7 +192,7 @@ export default function Footer() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = '/register'}
-                className="px-6 py-3 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 orbitron-font"
+                className="px-6 py-3 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
               >
                 Subscribe
               </motion.button>
