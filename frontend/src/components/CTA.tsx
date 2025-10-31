@@ -21,7 +21,7 @@ export default function CTA() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.href = '/register'}
-              className="px-8 py-4 bg-[#FDDA00] text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
+              className="px-8 py-4 glow-btn"
             >
               Get Started Now
             </motion.button>

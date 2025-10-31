@@ -80,13 +80,13 @@ export default function About() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 text-center hover:border-[#FDDA00]/50 transition-all duration-300"
+                className="group rounded-xl p-6 text-center bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_10px_30px_rgba(0,0,0,0.45)] hover:shadow-[0_12px_36px_rgba(253,218,0,0.12)] transition-all duration-300"
               >
-                <div className="text-[#FDDA00] mb-4 flex justify-center">
+                <div className="text-[#FDDA00] mb-4 flex justify-center drop-shadow-[0_0_12px_rgba(253,218,0,0.35)] group-hover:scale-110 transition-transform">
                   {stat.icon}
                 </div>
                 <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-gray-400 text-sm">{stat.label}</div>
+                <div className="text-gray-300 text-sm">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -102,21 +102,21 @@ export default function About() {
         >
           <h3 className="text-3xl font-bold text-[#FDDA00] mb-8 heading-font">Our Values</h3>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
+            <div className="rounded-lg p-6 bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_8px_26px_rgba(0,0,0,0.45)] hover:shadow-[0_10px_30px_rgba(253,218,0,0.12)] transition-all duration-300">
               <h4 className="text-xl font-bold text-white mb-3 heading-font">Innovation</h4>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 We stay at the forefront of blockchain technology, constantly updating our curriculum to reflect the latest developments.
               </p>
             </div>
-            <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
+            <div className="rounded-lg p-6 bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_8px_26px_rgba(0,0,0,0.45)] hover:shadow-[0_10px_30px_rgba(253,218,0,0.12)] transition-all duration-300">
               <h4 className="text-xl font-bold text-white mb-3 heading-font">Excellence</h4>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 We maintain the highest standards in education, ensuring every student receives world-class training and support.
               </p>
             </div>
-            <div className="bg-gray-900/30 border border-gray-800 rounded-lg p-6 hover:border-[#FDDA00]/50 transition-all duration-300">
+            <div className="rounded-lg p-6 bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_8px_26px_rgba(0,0,0,0.45)] hover:shadow-[0_10px_30px_rgba(253,218,0,0.12)] transition-all duration-300">
               <h4 className="text-xl font-bold text-white mb-3 heading-font">Community</h4>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 We foster a supportive learning environment where students can grow together and build lasting professional networks.
               </p>
             </div>

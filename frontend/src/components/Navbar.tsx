@@ -87,7 +87,7 @@ export default function Navbar() {
               onClick={handleLogin}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 text-[#FDDA00] border border-[#FDDA00] rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all duration-300"
+              className="px-5 py-2 glow-btn"
             >
               Login
             </motion.button>
@@ -95,7 +95,7 @@ export default function Navbar() {
               onClick={() => navigate('/register')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
+              className="px-6 py-2 glow-btn"
             >
               Get Started
             </motion.button>
@@ -151,7 +151,7 @@ export default function Navbar() {
                   handleLogin()
                   setIsOpen(false)
                 }}
-                className="w-full text-left px-3 py-2 text-[#FDDA00] hover:bg-[#FDDA00]/10 rounded-lg transition-all duration-300"
+                className="w-full px-3 py-2 glow-btn"
               >
                 Login
               </motion.button>
@@ -166,7 +166,7 @@ export default function Navbar() {
                   navigate('/register')
                   setIsOpen(false)
                 }}
-                className="w-full text-left px-3 py-2 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg mt-2"
+                className="w-full px-1 py-1 glow-btn mt-2"
               >
                 Get Started
               </motion.button>
