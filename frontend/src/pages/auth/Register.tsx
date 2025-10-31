@@ -75,7 +75,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-8">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="absolute inset-0 bg-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
         <div className="absolute top-20 left-20 w-32 h-32 bg-[#FDDA00] rounded-full blur-3xl opacity-20 neon-float"></div>
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#FDDA00] rounded-full blur-3xl opacity-15 neon-float" style={{animationDelay: '1s'}}></div>
@@ -92,14 +92,14 @@ export default function Register() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
               src="/orionorion.png"
-              alt="Orion Academy Logo"
+              alt="Orion Logo"
               className="w-12 h-12 object-contain"
             />
             <span className="text-3xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion Academy
+              Orion
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Join Orion Academy</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">Join Orion</h1>
           <p className="text-gray-400">Start your Web3 development journey</p>
         </motion.div>
 

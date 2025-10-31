@@ -116,7 +116,7 @@ export default function EmailVerification() {
   if (isVerified) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="absolute inset-0 bg-black">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
         </div>
 
@@ -166,11 +166,11 @@ export default function EmailVerification() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
               src="/orionorion.png"
-              alt="Orion Academy Logo"
+              alt="Orion Logo"
               className="w-12 h-12 object-contain"
             />
             <span className="text-3xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion Academy
+              Orion
             </span>
           </div>
           <div className="w-16 h-16 bg-[#FDDA00]/20 rounded-full flex items-center justify-center mx-auto mb-4">
