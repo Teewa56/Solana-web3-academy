@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { motion } from 'framer-motion'
+import { useNavigation } from '../contexts/NavigationContext'
 import { ArrowRight, Twitter, Book, Send } from 'lucide-react'
 
 export default function Hero() {
+  const { navigate } = useNavigation()
   const heroRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
@@ -82,7 +84,7 @@ export default function Hero() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/register'}
+            onClick={() => navigate('/register')}
             className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
           >
             <span className="relative z-10 flex items-center gap-2">
