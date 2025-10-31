@@ -49,7 +49,7 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-[auto_1fr_auto] items-center h-16">
           {/* Logo */}
           <motion.div
@@ -66,8 +66,8 @@ export default function Navbar() {
             </span>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center justify-self-center">
+          {/* Desktop Navigation (absolute centered to viewport) */}
+          <div className="hidden md:flex items-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
             <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_6px_18px_rgba(0,0,0,0.45)]">
               {navItems.map((item, index) => (
                 <motion.button
