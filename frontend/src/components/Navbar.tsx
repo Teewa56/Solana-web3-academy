@@ -50,7 +50,7 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="grid grid-cols-3 items-center h-16">
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -67,7 +67,7 @@ export default function Navbar() {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center justify-self-center">
             <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_6px_18px_rgba(0,0,0,0.45)]">
               {navItems.map((item, index) => (
                 <motion.button
@@ -85,7 +85,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 justify-self-end">
             <motion.button
               onClick={handleLogin}
               whileHover={{ scale: 1.05 }}

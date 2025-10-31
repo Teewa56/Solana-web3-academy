@@ -37,7 +37,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="border-t border-[#FDDA00]/20 bg-transparent relative">
+    <footer className="border-t border-white/10 bg-transparent relative">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -173,7 +173,7 @@ export default function Footer() {
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
-          className="mt-16 pt-8 border-t border-gray-800"
+          className="mt-16 pt-8 border-t border-white/10"
         >
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-bold text-[#FDDA00] mb-4 heading-font">
@@ -202,7 +202,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800 bg-white/5 backdrop-blur-sm">
+      <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <motion.div
