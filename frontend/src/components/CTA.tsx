@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
+import { useNavigation } from '../contexts/NavigationContext'
 
 export default function CTA() {
+  const { navigate } = useNavigation()
   return (
     <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto text-center">
@@ -20,7 +22,7 @@ export default function CTA() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.href = '/register'}
+              onClick={() => navigate('/register')}
               className="px-8 py-4 glow-btn"
             >
               Get Started Now
