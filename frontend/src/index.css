@@ -135,24 +135,28 @@ input:-webkit-autofill:focus {
   align-items: center;
   justify-content: center;
   border-radius: 9999px; /* pill */
-  background: linear-gradient(90deg, #FDDA00 0%, #f4d03f 100%);
+  background: linear-gradient(90deg, #FDDA00 0%, #F4D03F 100%);
   color: #000;
   font-weight: 700;
-  border: 1px solid rgba(253, 218, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.08),
-    0 10px 30px rgba(253, 218, 0, 0.18),
-    0 0 50px rgba(253, 218, 0, 0.22);
-  transition: transform 150ms ease, box-shadow 200ms ease, filter 200ms ease;
+    inset 0 1px 0 rgba(255,255,255,0.35), /* top bevel */
+    inset 0 -2px 6px rgba(0,0,0,0.25),    /* inner shadow */
+    0 10px 30px rgba(253, 218, 0, 0.22),
+    0 0 60px rgba(253, 218, 0, 0.28);
+  backdrop-filter: saturate(160%) blur(2px);
+  transition: transform 150ms ease, box-shadow 220ms ease, filter 220ms ease;
+  overflow: hidden;
 }
 
 .glow-btn:hover {
   transform: translateY(-1px);
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.10),
-    0 12px 36px rgba(253, 218, 0, 0.24),
-    0 0 70px rgba(253, 218, 0, 0.30);
-  filter: brightness(1.02);
+    inset 0 1px 0 rgba(255,255,255,0.42),
+    inset 0 -2px 8px rgba(0,0,0,0.28),
+    0 14px 38px rgba(253, 218, 0, 0.28),
+    0 0 90px rgba(253, 218, 0, 0.35);
+  filter: brightness(1.03);
 }
 
 .glow-btn:active {
@@ -163,11 +167,73 @@ input:-webkit-autofill:focus {
 .glow-btn::before {
   content: '';
   position: absolute;
-  inset: -12px;
+  inset: -14px;
   border-radius: 9999px;
-  background: radial-gradient(closest-side, rgba(253, 218, 0, 0.25), rgba(253, 218, 0, 0.0));
-  filter: blur(14px);
+  background: radial-gradient(closest-side, rgba(253, 218, 0, 0.28), rgba(253, 218, 0, 0.0));
+  filter: blur(16px);
   z-index: -1;
+}
+
+/* glassy top sheen */
+.glow-btn::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: 52%;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.06) 55%, rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+/* Dark (black) glass variant for navbar CTAs */
+.glow-btn--black {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #0B0B0B 0%, #151515 100%);
+  color: #FDDA00; /* yellow label on black glass */
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 -2px 6px rgba(0,0,0,0.35),
+    0 8px 26px rgba(253, 218, 0, 0.18),
+    0 0 50px rgba(253, 218, 0, 0.22);
+  backdrop-filter: saturate(160%) blur(2px);
+  transition: transform 150ms ease, box-shadow 220ms ease, filter 220ms ease;
+  overflow: hidden;
+}
+
+.glow-btn--black:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    inset 0 -2px 8px rgba(0,0,0,0.4),
+    0 12px 34px rgba(253, 218, 0, 0.22),
+    0 0 70px rgba(253, 218, 0, 0.28);
+}
+
+.glow-btn--black::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, rgba(253, 218, 0, 0.22), rgba(253, 218, 0, 0));
+  filter: blur(16px);
+  z-index: -1;
+}
+
+.glow-btn--black::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; height: 50%;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 55%, rgba(255,255,255,0));
+  pointer-events: none;
 }
 
 /* Heading font stack preferring Canela with graceful fallbacks */

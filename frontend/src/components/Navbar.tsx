@@ -90,7 +90,7 @@ export default function Navbar() {
               onClick={handleLogin}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-5 py-2 glow-btn"
+              className="px-5 py-2 glow-btn--black"
             >
               Login
             </motion.button>
@@ -98,7 +98,7 @@ export default function Navbar() {
               onClick={() => navigate('/register')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2 glow-btn"
+              className="px-6 py-2 glow-btn--black"
             >
               Get Started
             </motion.button>
@@ -154,7 +154,7 @@ export default function Navbar() {
                   handleLogin()
                   setIsOpen(false)
                 }}
-                className="w-full px-3 py-2 glow-btn"
+                className="w-full px-3 py-2 glow-btn--black"
               >
                 Login
               </motion.button>
@@ -169,7 +169,7 @@ export default function Navbar() {
                   navigate('/register')
                   setIsOpen(false)
                 }}
-                className="w-full px-1 py-1 glow-btn mt-2"
+                className="w-full px-1 py-1 glow-btn--black mt-2"
               >
                 Get Started
               </motion.button>

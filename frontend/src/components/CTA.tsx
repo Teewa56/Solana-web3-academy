@@ -23,7 +23,7 @@ export default function CTA() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/register')}
-              className="px-8 py-4 glow-btn"
+              className="px-8 py-4 glow-btn--black"
             >
               Get Started Now
             </motion.button>
@@ -31,7 +31,7 @@ export default function CTA() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 border-2 border-[#FDDA00] text-[#FDDA00] font-bold rounded-lg hover:bg-[#FDDA00] hover:text-black transition-all"
+              className="px-8 py-4 glow-btn--black"
             >
               View Courses
             </motion.button>
