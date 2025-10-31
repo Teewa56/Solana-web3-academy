@@ -67,18 +67,21 @@ export default function Navbar() {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item, index) => (
-              <motion.button
-                key={item.name}
-                onClick={() => scrollToSection(item.href)}
-                whileHover={{ y: -2 }}
-                className="text-gray-300 hover:text-[#FDDA00] transition-colors duration-300 font-medium"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {item.name}
-              </motion.button>
-            ))}
+          <div className="hidden md:flex items-center">
+            <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_6px_18px_rgba(0,0,0,0.45)]">
+              {navItems.map((item, index) => (
+                <motion.button
+                  key={item.name}
+                  onClick={() => scrollToSection(item.href)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-1.5 text-gray-300 hover:text-[#FDDA00] transition-colors duration-300 font-medium rounded-full hover:bg-white/[0.05]"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {item.name}
+                </motion.button>
+              ))}
+            </div>
           </div>
 
           {/* Desktop CTA Buttons */}
