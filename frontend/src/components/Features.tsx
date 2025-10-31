@@ -69,13 +69,13 @@ export default function Features() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
               whileHover={{ y: -5 }}
-              className="group p-6 bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl hover:border-[#FDDA00]/50 transition-all duration-300"
+              className="group p-6 rounded-xl bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.45)] hover:border-[#FDDA00]/35 hover:shadow-[0_12px_36px_rgba(253,218,0,0.12)] transition-all duration-300"
             >
-              <div className="text-[#FDDA00] mb-4 group-hover:scale-110 transition-transform">
+              <div className="text-[#FDDA00] mb-4 group-hover:scale-110 transition-transform drop-shadow-[0_0_12px_rgba(253,218,0,0.35)]">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold mb-3 heading-font">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+              <p className="text-gray-300">{feature.description}</p>
             </motion.div>
           ))}
         </div>

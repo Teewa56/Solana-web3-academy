@@ -128,6 +128,48 @@ input:-webkit-autofill:focus {
   letter-spacing: 0.05em;
 }
 
+/* Neon glow pill button used for Signup / Get Started */
+.glow-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px; /* pill */
+  background: linear-gradient(90deg, #FDDA00 0%, #f4d03f 100%);
+  color: #000;
+  font-weight: 700;
+  border: 1px solid rgba(253, 218, 0, 0.35);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.08),
+    0 10px 30px rgba(253, 218, 0, 0.18),
+    0 0 50px rgba(253, 218, 0, 0.22);
+  transition: transform 150ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+
+.glow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.10),
+    0 12px 36px rgba(253, 218, 0, 0.24),
+    0 0 70px rgba(253, 218, 0, 0.30);
+  filter: brightness(1.02);
+}
+
+.glow-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, rgba(253, 218, 0, 0.25), rgba(253, 218, 0, 0.0));
+  filter: blur(14px);
+  z-index: -1;
+}
+
 /* Heading font stack preferring Canela with graceful fallbacks */
 .heading-font {
   font-family: 'Cormorant Garamond', ui-serif, Georgia, "Times New Roman", serif;

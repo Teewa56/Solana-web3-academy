@@ -72,7 +72,7 @@ export default function Contact() {
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
+            className="rounded-xl p-8 bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
           >
             <h3 className="text-2xl font-bold text-[#FDDA00] mb-6 flex items-center gap-2 heading-font">
               <MessageCircle className="w-6 h-6" />
@@ -92,7 +92,7 @@ export default function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all"
                     placeholder="Your full name"
                   />
                 </div>
@@ -107,7 +107,7 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -124,7 +124,7 @@ export default function Contact() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all"
                   placeholder="What's this about?"
                 />
               </div>
@@ -140,7 +140,7 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors resize-none"
+                  className="w-full px-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all resize-none"
                   placeholder="Tell us more about your inquiry..."
                 />
               </div>
@@ -149,7 +149,7 @@ export default function Contact() {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full px-6 py-4 glow-btn rounded-full flex items-center justify-center gap-2"
               >
                 <Send className="w-5 h-5" />
                 Send Message
@@ -184,15 +184,15 @@ export default function Contact() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ x: 10 }}
-                  className="flex items-start space-x-4 p-4 bg-gray-900/30 border border-gray-800 rounded-lg hover:border-[#FDDA00]/50 transition-all duration-300"
+                  className="flex items-start space-x-4 p-4 rounded-lg bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_8px_26px_rgba(0,0,0,0.45)] hover:shadow-[0_10px_30px_rgba(253,218,0,0.12)] transition-all duration-300"
                 >
-                  <div className="text-[#FDDA00] mt-1">
+                  <div className="text-[#FDDA00] mt-1 drop-shadow-[0_0_12px_rgba(253,218,0,0.35)]">
                     {info.icon}
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-1 heading-font">{info.title}</h4>
                     <p className="text-[#FDDA00] font-medium mb-1">{info.details}</p>
-                    <p className="text-gray-400 text-sm">{info.description}</p>
+                    <p className="text-gray-300 text-sm">{info.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -204,7 +204,7 @@ export default function Contact() {
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-r from-[#FDDA00]/10 to-transparent border border-[#FDDA00]/20 rounded-lg p-6"
+              className="rounded-lg p-6 bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_8px_26px_rgba(0,0,0,0.45)]"
             >
               <h4 className="text-lg font-bold text-[#FDDA00] mb-3 heading-font">Quick Response</h4>
               <p className="text-gray-300 mb-4">

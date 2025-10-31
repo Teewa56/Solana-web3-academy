@@ -70,7 +70,7 @@ export default function Footer() {
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-10 h-10 bg-gray-900 border border-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#FDDA00] hover:border-[#FDDA00]/50 transition-all duration-300"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-300 hover:text-[#FDDA00] transition-all duration-300 bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:border-[#FDDA00]/35 shadow-[0_6px_18px_rgba(0,0,0,0.45)] hover:shadow-[0_8px_22px_rgba(253,218,0,0.12)]"
                   aria-label={social.label}
                 >
                   {social.icon}
@@ -186,7 +186,7 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                className="flex-1 px-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all"
               />
               <motion.button
                 whileHover={{ scale: 1.05 }}
