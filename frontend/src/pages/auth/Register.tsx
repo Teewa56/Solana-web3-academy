@@ -75,7 +75,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-8">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="absolute inset-0 bg-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(253,218,0,0.1),transparent_50%)]"></div>
         <div className="absolute top-20 left-20 w-32 h-32 bg-[#FDDA00] rounded-full blur-3xl opacity-20 neon-float"></div>
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#FDDA00] rounded-full blur-3xl opacity-15 neon-float" style={{animationDelay: '1s'}}></div>
@@ -92,14 +92,14 @@ export default function Register() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
               src="/orionorion.png"
-              alt="Orion Academy Logo"
+              alt="Orion Logo"
               className="w-12 h-12 object-contain"
             />
             <span className="text-3xl font-bold bg-gradient-to-r from-[#FDDA00] to-yellow-300 bg-clip-text text-transparent">
-              Orion Academy
+              Orion
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Join Orion Academy</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">Join Orion</h1>
           <p className="text-gray-400">Start your Web3 development journey</p>
         </motion.div>
 
@@ -108,7 +108,7 @@ export default function Register() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
+          className="rounded-xl p-8 bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
@@ -123,8 +123,8 @@ export default function Register() {
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-2">
                 Full Name
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type="text"
                   id="fullName"
@@ -132,7 +132,7 @@ export default function Register() {
                   value={formData.fullName}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -143,8 +143,8 @@ export default function Register() {
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type="email"
                   id="email"
@@ -152,7 +152,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="your@email.com"
                 />
               </div>
@@ -163,8 +163,8 @@ export default function Register() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -172,15 +172,15 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-12 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="Create a strong password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-transform duration-150 ease-out"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-5 h-5 rotate-90" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
 
@@ -204,8 +204,8 @@ export default function Register() {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                 Confirm Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
@@ -213,15 +213,15 @@ export default function Register() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-12 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-transform duration-150 ease-out"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5 rotate-90" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
