@@ -91,7 +91,7 @@ export default function Login() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
+          className="rounded-xl p-8 bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
@@ -106,8 +106,8 @@ export default function Login() {
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type="email"
                   id="email"
@@ -115,7 +115,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="your@email.com"
                 />
               </div>
@@ -126,8 +126,8 @@ export default function Login() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#FDDA00]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -135,15 +135,15 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-[#FDDA00] focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-12 py-3.5 bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all shadow-[0_0_0_rgba(0,0,0,0)] focus:shadow-[0_0_20px_rgba(253,218,0,0.08)]"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDDA00] transition-transform duration-150 ease-out"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-5 h-5 rotate-90" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>

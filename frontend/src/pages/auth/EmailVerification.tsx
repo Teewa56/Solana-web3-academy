@@ -187,7 +187,7 @@ export default function EmailVerification() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8"
+          className="rounded-xl p-8 bg-white/[0.03] backdrop-blur-sm border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
         >
           <form onSubmit={handleVerify} className="space-y-6">
             {/* Error Message */}
@@ -212,7 +212,7 @@ export default function EmailVerification() {
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-12 text-center text-xl font-bold bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-[#FDDA00] focus:outline-none transition-colors"
+                    className="w-12 h-12 text-center text-xl font-bold bg-[#0B0B0B]/90 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FDDA00]/40 focus:border-[#FDDA00]/40 hover:border-[#FDDA00]/25 transition-all"
                   />
                 ))}
               </div>
