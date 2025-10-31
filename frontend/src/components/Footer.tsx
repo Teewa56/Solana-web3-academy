@@ -192,7 +192,7 @@ export default function Footer() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = '/register'}
-                className="px-6 py-3 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg hover:shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
+                className="px-6 py-3 glow-btn--black"
               >
                 Subscribe
               </motion.button>

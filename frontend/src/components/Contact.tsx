@@ -149,7 +149,7 @@ export default function Contact() {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-4 glow-btn rounded-full flex items-center justify-center gap-2"
+                className="w-full px-6 py-4 glow-btn--black rounded-full flex items-center justify-center gap-2"
               >
                 <Send className="w-5 h-5" />
                 Send Message

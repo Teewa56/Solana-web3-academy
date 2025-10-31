@@ -85,13 +85,10 @@ export default function Hero() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/register')}
-            className="group relative px-8 py-4 bg-gradient-to-r from-[#FDDA00] to-yellow-400 text-black font-bold rounded-lg shadow-lg hover:shadow-[#FDDA00]/50 transition-all duration-300"
+            className="px-8 py-4 glow-btn--black rounded-full flex items-center gap-2"
           >
-            <span className="relative z-10 flex items-center gap-2">
-              Signup
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FDDA00] to-yellow-400 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+            Signup
+            <ArrowRight className="w-5 h-5" />
           </motion.button>
 
           {/* Secondary demo button removed per request */}
